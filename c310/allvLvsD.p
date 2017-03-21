@@ -12,12 +12,13 @@
  set ytic auto                          # set ytics automatically
  set  grid xtics ytics
  show grid
- set title "c310v32\nAp:70.0 16.0 1.0 0.4 1.0\n Cr:223.0 20000.0 1.0 1.0\nWi:0.8 0.1 16.0 4.0 1.5 1.5 1.2 1.3 1.2\nHs:0 1 16.0 4.0 1.5 1.68 1.2\nVs:0 1 16.0 4.0 0 1.3 1.2Ys:100 5000" 
+ set title "c310All Versions Parms:\nAp:70.0 16.0 1.0 0.4 1.0\n Cr:223.0 20000.0 1.0 1.0\nWi:0.8 0.1 16.0 4.0 1.5 1.5 1.2 1.3 1.2\nHs:0 1 16.0 4.0 1.5 1.68 1.2\nVs:0 1 16.0 4.0 0 1.3 1.2Ys:100 5000" 
 # set xlabel "AoA (Deg)"
 # set ylabel "Force (G)"
 #plot  "outpData.txt" every ::155::210 using 1:2 with lines title 'lift', \
 #      "outpData.txt" every ::155::210 using 1:3 with lines title 'drag', \
 #      "outpData.txt" every ::155::210 using 1:4 with lines title 'LD'
- plot "c310-datv32.txt" every ::2        using 1:2 with lines title 'lift', \
-      "c310-datv32.txt" every ::2        using 1:3 with lines title 'drag', \
-      "c310-datv32.txt" every ::2        using 1:4 with lines title 'L-D' 
+plot"c310-datv2017-2.txt" every ::2        using 1:4 with lines title 'LvsD v2017-2', \
+    "c310-datvOrig.txt" every ::2        using 1:4 with lines title 'LvsD vOrig', \
+    "c310-datvCurr.txt" every ::2        using 1:4 with lines title 'LvsD vCurr', \
+    "c310-datv32.txt" every ::2        using 1:4 with lines title 'LvsD v32', \
