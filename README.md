@@ -8,5 +8,9 @@ are saved separately from the original yasim xml configuration file.
 
  The python script depends on Tkinter being available for import and gnuplot should be installed.
  It's a work in process, it's likely the parser will throw errors depending on the line-bt-line 
- form of the input configuration file. 
+ form of the input configuration file: most likely the 'wing', 'hstab' and 'vstab' definitions
+ will need to be unsplit into single long line definitions. 
+ 
+compVers.py is useful for quickly checking version effects, separate gnuplots for Lift, Drag and LvsD
+  are displayed with each plot depicting curves for different Yasim versin strings.  
  
