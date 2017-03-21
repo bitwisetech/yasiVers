@@ -17,10 +17,10 @@ def normArgs(argv):
   global yDatFid
   yDatFid   = "ytixData.txt"
   # template gnuplot spec files for 2, 3 variables plot
-  global plt2Fid
-  plt2Fid   = 'tplt2arg.p'
-  global plt3Fid
-  plt3Fid   = 'tplt3arg.p'
+  global spc2Fid
+  spc2Fid   = 'tplt2arg.p'
+  global spc3Fid
+  spc3Fid   = 'tplt3arg.p'
   global vbl2Fid
   vbl2Fid   = 'outp2arg.p'
   global vbl3Fid
@@ -49,7 +49,7 @@ def normArgs(argv):
 #
 def vblsFromTplt():
   global ycIpFid, ycIpNam, ycOpFid, yDatFid
-  global plt2Fid, plt3Fid, vbl2Fid, vbl3Fid
+  global spc2Fid, spc3Fid, vbl2Fid, vbl3Fid
   global Va, Aa, Ka, Ra, Fa                                    # Approach  parms
   global Vc, Hc, Kc, Rc                                        # Cruise    parms 
   global Cw, Iw, Aw, Ww, Pw, Lw, Dw, Lr, Dr                    # Wing/Ailr parms
@@ -428,7 +428,7 @@ def vblsFromTplt():
 #
 def autoFromVbls():
   global ycIpFid, ycIpNam, ycOpFid, yDatFid
-  global plt2Fid, plt3Fid, vbl2Fid, vbl3Fid
+  global spc2Fid, spc3Fid, vbl2Fid, vbl3Fid
   global Va, Aa, Ka, Ra, Fa                                    # Approach  parms
   global Vc, Hc, Kc, Rc                                        # Cruise    parms 
   global Cw, Iw, Aw, Ww, Pw, Lw, Dw, Lr, Dr                    # Wing/Ailr parms
@@ -540,7 +540,7 @@ def autoFromVbls():
 # Call yasim data and gnuplot with auto-created config and plot spec files
 def callPlot():
   global ycIpFid, ycIpNam, ycOpFid, yDatFid
-  global plt2Fid, plt3Fid, vbl2Fid, vbl3Fid
+  global spc2Fid, spc3Fid, vbl2Fid, vbl3Fid
   global allvLiftFid, allvDragFid, allvLvsDFid
   global Va, Aa, Ka, Ra, Fa                                    # Approach  parms
   global Vc, Hc, Kc, Rc                                        # Cruise    parms 
@@ -561,9 +561,46 @@ def callPlot():
   global txtZv,  txtZZv, txtZZZv, txtZZp, txtZZZp
   global txtZr,  txtSp,  txtRp,   txtZp,  txtAp,  txtPp, txtWp, txtMp
 #
+  # dictinary of all possible Yasim configuration strings 
   versDict = {'YASIM_VERSION_ORIGINAL':'vOrig', 'YASIM_VERSION_CURRENT':'vCurr', \
               'YASIM_VERSION_32':'v32'        , '2017.2' :'v2017-2' }
-  ## Iterate through each version in dictionary
+  #create common annotation test parsed / menu-altered values
+  commNota = ' set title "' + ycIpNam + 'All Versions Parms:\\nAp:' + str(Va) \
+    + ' ' + str(Aa) + ' ' + str(Ka) + ' ' + str(Ra) + ' ' + str(Fa) +'\\n'    \
+    + ' Cr:'  + str(Vc) + ' ' + str(Hc) + ' ' + str(Kc) + ' '                 \
+    + str(Rc) + '\\nWi:' + str(Cw) + ' ' + str(Iw) + ' ' + str(Aw)            \
+    + ' ' + str(Ww) + ' ' + str(Pw) + ' ' + str(Lw) + ' ' + str(Dw)           \
+    + ' ' + str(Lr) + ' ' + str(Dr)                                           \
+    + '\\nHs:' + str(Ch) + ' ' + str(Ih) + ' ' + str(Ah)                      \
+    + ' ' + str(Wh) + ' ' + str(Ph) + ' '   + str(Lh) + ' ' + str(Dh)         \
+    + '\\nVs:' + str(Cv) + ' ' + str(Iv) + ' ' + str(Av)                      \
+    + ' ' + str(Wv) + ' ' + str(Pv) + ' '   + str(Lv) + ' ' + str(Dv)         \
+    + 'Ys:'+ str(Vy) + ' ' + str(Hy) + '" \n'
+  # uncomment line below to supress parms legend
+  commNota = ' set title "' + ycIpNam + 'All Versions" \n'
+  #setup write handles for three separate gnuplot spec files     
+  liftHndl  = open(allvLiftFid, 'w', 0)
+  dragHndl  = open(allvDragFid, 'w', 0)
+  lvsdHndl  = open(allvLvsDFid, 'w', 0)
+  # partially create gnuplot config files up until plot specifications 
+  # use three-args template 
+  with open(spc3Fid, 'r') as tplt:
+    plotFlag = 0
+    for line in tplt:
+      # set flag near end when 'plot' string is found
+      if (' plot ' in line ): plotFlag = 1
+      # find the title line in template config
+      if ('set title' in line ):
+        #create title using parsed / substituted values
+        line = commNota
+      if ( plotFlag < 1):
+        # Write line into each gnuplot template
+        liftHndl.write(line)
+        dragHndl.write(line)
+        lvsdHndl.write(line)
+  # flag to indicate first entry in dict 
+  versIter = 0 
+  ## Iterate dictionary; for each version create yasim.xml file and gnuplot line specs 
   for versKywd in versDict.keys():
     versSfix = versDict[versKywd]
     vcfgFid  = ycIpNam + versSfix + '.xml'
@@ -597,74 +634,32 @@ def callPlot():
       ycIpHndl.flush
       os.fsync(ycIpHndl.fileno())
     ycIpHndl.close
-  ##
-  ## auto create gnuplot config files using saved per-version data files
-  #create common annotation test parsed / menu-altered values
-  commNote = ' set title "' + ycIpNam + 'All Versions Parms:\\nAp:' + str(Va)      \
-    + ' ' + str(Aa) + ' ' + str(Ka) + ' ' + str(Ra) + ' ' + str(Fa) +'\\n'  \
-    + ' Cr:'  + str(Vc) + ' ' + str(Hc) + ' ' + str(Kc) + ' '          \
-    + str(Rc) + '\\nWi:' + str(Cw) + ' ' + str(Iw) + ' ' + str(Aw)     \
-    + ' ' + str(Ww) + ' ' + str(Pw) + ' ' + str(Lw) + ' ' + str(Dw)   \
-    + ' ' + str(Lr) + ' ' + str(Dr)                                   \
-    + '\\nHs:' + str(Ch) + ' ' + str(Ih) + ' ' + str(Ah)               \
-    + ' ' + str(Wh) + ' ' + str(Ph) + ' '   + str(Lh) + ' ' + str(Dh) \
-    + '\\nVs:' + str(Cv) + ' ' + str(Iv) + ' ' + str(Av)               \
-    + ' ' + str(Wv) + ' ' + str(Pv) + ' '   + str(Lv) + ' ' + str(Dv) \
-    + 'Ys:'+ str(Vy) + ' ' + str(Hy) + '" \n'
-  #setup write handles for three separate gnuplot spec files     
-  liftHndl  = open(allvLiftFid, 'w', 0)
-  dragHndl  = open(allvDragFid, 'w', 0)
-  lvsdHndl  = open(allvLvsDFid, 'w', 0)
-  # use three-args template 
-  with open(plt3Fid, 'r') as tplt:
-    plotFlag = 0
-    for line in tplt:
-      # set flag near end when 'plot' string is found
-      if (' plot ' in line ): plotFlag = 1
-      # find the title line in template config
-      if ('set title' in line ):
-        #create title using parsed / substituted values
-        line = commNote
-      if ( plotFlag < 1):
-        # Write line into each gnuplot template
-        liftHndl.write(line)
-        dragHndl.write(line)
-        lvsdHndl.write(line)
-    # At EOF of template file append plot lines with proper data file name
+    # resume gnuplot spec file 
+    # At EOF of gnuplot specification file append plot lines version's data file name
     ## Iterate through each version in dictionary
-    versIter = 0 
-    for versKywd in versDict.keys():
-      versSfix = versDict[versKywd]
-      vdatFid  = ycIpNam +  '-dat' + versSfix + '.txt'
-      # 'plot' only at first filespec 
-      if ( versIter == 0) :
-        line = 'plot'
-      else :
-        line = '    '  
-      line = line + '"' + vdatFid +'" every ::2        using '            \
-         + '1:2 with lines title \'Lift ' + versSfix + '\', \\\n'
-      liftHndl.write(line)
-      if ( versIter == 0) :
-        line = 'plot'
-      else :
-        line = '    '  
-      line = line + '"' + vdatFid +'" every ::2        using '            \
-         + '1:3 with lines title \'Drag ' + versSfix + '\', \\\n'
-      dragHndl.write(line)
-      if ( versIter == 0) :
-        line = 'plot'
-      else :
-        line = '    '  
-      line = line + '"' + vdatFid +'" every ::2        using '            \
-         + '1:4 with lines title \'LvsD ' + versSfix + '\', \\\n'
-      lvsdHndl.write(line)
-      versIter += 1
-    liftHndl.close
-    dragHndl.close
-    lvsdHndl.close
-    tplt.close
-    #
-    ####
+    # 'plot' only at first filespec 
+    if ( versIter == 0) :
+      line = 'plot'
+    else :
+      line = '    '  
+    line = line + '"' + vdatFid +'" every ::2        using '            \
+       + '1:2 with lines title \'Lift ' + versSfix + '\', \\\n'
+    liftHndl.write(line)
+    if ( versIter == 0) :
+      line = 'plot'
+    else :
+      line = '    '  
+    line = line + '"' + vdatFid +'" every ::2        using '            \
+       + '1:3 with lines title \'Drag ' + versSfix + '\', \\\n'
+    dragHndl.write(line)
+    if ( versIter == 0) :
+      line = 'plot'
+    else :
+      line = '    '  
+    line = line + '"' + vdatFid +'" every ::2        using '            \
+       + '1:4 with lines title \'LvsD ' + versSfix + '\', \\\n'
+    lvsdHndl.write(line)
+    versIter += 1
     # run yasim external process to show console output
     command_line = 'yasim ' + vcfgFid + ' -a ' + str(Hy) + ' -s ' + str(Vy)
     args = shlex.split(command_line)
@@ -680,39 +675,44 @@ def callPlot():
     yDatHndl.close
     p.wait()
     #
-    ##
-    # run yasim external process for saved dataset file
-    vDatHndl = open(vdatFid, 'w')
-    command_line = 'yasim ' + vcfgFid + ' -g -a '+ str(Hy) + ' -s ' + str(Vy)
-    args = shlex.split(command_line)
-    p = subprocess.Popen(args, stdout=vDatHndl)
-    vDatHndl.close
-    p.wait()
-    #
-    # run gnuplot with all versions Lift command file to plot dataset
-    command_line = "gnuplot -p " + allvLiftFid
-    args = shlex.split(command_line)
-    DEVNULL = open(os.devnull, 'wb')
-    p = subprocess.Popen(args, stdout=DEVNULL, stderr=DEVNULL)
-    p.communicate()
-    DEVNULL.close()
-    #
-    # run gnuplot with all versions Drag command file to plot dataset
-    command_line = "gnuplot -p " + allvDragFid
-    args = shlex.split(command_line)
-    DEVNULL = open(os.devnull, 'wb')
-    p = subprocess.Popen(args, stdout=DEVNULL, stderr=DEVNULL)
-    p.communicate()
-    DEVNULL.close()
-    #
-    # run gnuplot with all versions LvsDD command file to plot dataset
-    command_line = "gnuplot -p " + allvLvsDFid
-    args = shlex.split(command_line)
-    DEVNULL = open(os.devnull, 'wb')
-    p = subprocess.Popen(args, stdout=DEVNULL, stderr=DEVNULL)
-    p.communicate()
-    DEVNULL.close()
   #end step through version dictionary
+  liftHndl.close
+  dragHndl.close
+  lvsdHndl.close
+  tplt.close
+  #
+  ##
+  # run yasim external process for saved dataset file
+  vDatHndl = open(vdatFid, 'w')
+  command_line = 'yasim ' + vcfgFid + ' -g -a '+ str(Hy) + ' -s ' + str(Vy)
+  args = shlex.split(command_line)
+  p = subprocess.Popen(args, stdout=vDatHndl)
+  vDatHndl.close
+  p.wait()
+  #
+  # run gnuplot with all versions Lift command file to plot dataset
+  command_line = "gnuplot -p " + allvLiftFid
+  args = shlex.split(command_line)
+  DEVNULL = open(os.devnull, 'wb')
+  p = subprocess.Popen(args, stdout=DEVNULL, stderr=DEVNULL)
+  p.communicate()
+  DEVNULL.close()
+  #
+  # run gnuplot with all versions Drag command file to plot dataset
+  command_line = "gnuplot -p " + allvDragFid
+  args = shlex.split(command_line)
+  DEVNULL = open(os.devnull, 'wb')
+  p = subprocess.Popen(args, stdout=DEVNULL, stderr=DEVNULL)
+  p.communicate()
+  DEVNULL.close()
+  #
+  # run gnuplot with all versions LvsDD command file to plot dataset
+  command_line = "gnuplot -p " + allvLvsDFid
+  args = shlex.split(command_line)
+  DEVNULL = open(os.devnull, 'wb')
+  p = subprocess.Popen(args, stdout=DEVNULL, stderr=DEVNULL)
+  p.communicate()
+  DEVNULL.close()
 #
 
 ##

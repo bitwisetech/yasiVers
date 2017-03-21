@@ -17,10 +17,10 @@ def normArgs(argv):
   global yDatFid
   yDatFid   = "ytixData.txt"
   # template gnuplot spec files for 2, 3 variables plot
-  global plt2Fid
-  plt2Fid   = 'tplt2arg.p'
-  global plt3Fid
-  plt3Fid   = 'tplt3arg.p'
+  global spc2Fid
+  spc2Fid   = 'tplt2arg.p'
+  global spc3Fid
+  spc3Fid   = 'tplt3arg.p'
   global vbl2Fid
   vbl2Fid   = 'outp2arg.p'
   global vbl3Fid
@@ -43,7 +43,7 @@ def normArgs(argv):
 #
 def vblsFromTplt():
   global ycIpFid, ycIpNam, ycOpFid, yDatFid
-  global plt2Fid, plt3Fid, vbl2Fid, vbl3Fid
+  global spc2Fid, spc3Fid, vbl2Fid, vbl3Fid
   global Va, Aa, Ka, Ra, Fa                                    # Approach  parms
   global Vc, Hc, Kc, Rc                                        # Cruise    parms 
   global Cw, Iw, Aw, Ww, Pw, Lw, Dw, Lr, Dr                    # Wing/Ailr parms
@@ -422,7 +422,7 @@ def vblsFromTplt():
 #
 def autoFromVbls():
   global ycIpFid, ycIpNam, ycOpFid, yDatFid
-  global plt2Fid, plt3Fid, vbl2Fid, vbl3Fid
+  global spc2Fid, spc3Fid, vbl2Fid, vbl3Fid
   global Va, Aa, Ka, Ra, Fa                                    # Approach  parms
   global Vc, Hc, Kc, Rc                                        # Cruise    parms 
   global Cw, Iw, Aw, Ww, Pw, Lw, Dw, Lr, Dr                    # Wing/Ailr parms
@@ -534,7 +534,7 @@ def autoFromVbls():
 # Call yasim data and gnuplot with auto-created config and plot spec files
 def callPlot():
   global ycIpFid, ycIpNam, ycOpFid, yDatFid
-  global plt2Fid, plt3Fid, vbl2Fid, vbl3Fid
+  global spc2Fid, spc3Fid, vbl2Fid, vbl3Fid
   global Va, Aa, Ka, Ra, Fa                                    # Approach  parms
   global Vc, Hc, Kc, Rc                                        # Cruise    parms 
   global Cw, Iw, Aw, Ww, Pw, Lw, Dw, Lr, Dr                    # Wing/Ailr parms
@@ -593,25 +593,28 @@ def callPlot():
     ##
     ## auto create 2 vble gnuplot config file
     apltHndl  = open(vbl2Fid, 'w', 0)
-    with open(plt2Fid, 'r') as tplt:
+    #create common annotation test parsed / menu-altered values
+    commNota = ' set title "' + ycIpNam + versSfix + 'Parms:\\nAp:' + str(Va)  \
+      + ' ' + str(Aa) + ' ' + str(Ka) + ' ' + str(Ra) + ' ' + str(Fa) +'\\n'   \
+      + ' Cr:'  + str(Vc) + ' ' + str(Hc) + ' ' + str(Kc) + ' '                \
+      + str(Rc) + '\\nWi:' + str(Cw) + ' ' + str(Iw) + ' ' + str(Aw)           \
+      + ' ' + str(Ww) + ' ' + str(Pw) + ' ' + str(Lw) + ' ' + str(Dw)          \
+      + ' ' + str(Lr) + ' ' + str(Dr)                                          \
+      + '\\nHs:' + str(Ch) + ' ' + str(Ih) + ' ' + str(Ah)                     \
+      + ' ' + str(Wh) + ' ' + str(Ph) + ' '   + str(Lh) + ' ' + str(Dh)        \
+      + '\\nVs:' + str(Cv) + ' ' + str(Iv) + ' ' + str(Av)                     \
+      + ' ' + str(Wv) + ' ' + str(Pv) + ' '   + str(Lv) + ' ' + str(Dv)        \
+      + 'Ys:'+ str(Vy) + ' ' + str(Hy) + '" \n'
+    # uncomment line below to supress parms legend
+    commNota = ' set title "' + ycIpNam + versSfix +'" \n'
+    with open(spc2Fid, 'r') as tplt:
       plotFlag = 0
       for line in tplt:
         # set flag near end when 'plot' string is found
         if (' plot ' in line ): plotFlag = 1
         # find the title line in template config
         if ('set title' in line ):
-          #create title using parsed / substituted values
-          line = ' set title "' + ycIpNam + versSfix + '\\nAp:' + str(Va)      \
-            + ' ' + str(Aa) + ' ' + str(Ka) + ' ' + str(Ra) + ' ' + str(Fa) +'\\n'  \
-            + ' Cr:'  + str(Vc) + ' ' + str(Hc) + ' ' + str(Kc) + ' '          \
-            + str(Rc) + '\\nWi:' + str(Cw) + ' ' + str(Iw) + ' ' + str(Aw)     \
-            + ' ' + str(Ww) + ' ' + str(Pw) + ' ' + str(Lw) + ' ' + str(Dw)   \
-            + ' ' + str(Lr) + ' ' + str(Dr)                                   \
-            + '\\nHs:' + str(Ch) + ' ' + str(Ih) + ' ' + str(Ah)               \
-            + ' ' + str(Wh) + ' ' + str(Ph) + ' '   + str(Lh) + ' ' + str(Dh) \
-            + '\\nVs:' + str(Cv) + ' ' + str(Iv) + ' ' + str(Av)               \
-            + ' ' + str(Wv) + ' ' + str(Pv) + ' '   + str(Lv) + ' ' + str(Dv) \
-            + 'Ys:'+ str(Vy) + ' ' + str(Hy) + '" \n'
+          line  = commNota
         if ( plotFlag < 1):
           # Write line into auto.xml
           apltHndl.write(line)
@@ -627,24 +630,13 @@ def callPlot():
     #
     ## auto create 3 vble gnuplot config file
     apltHndl  = open(vbl3Fid, 'w', 0)
-    with open(plt3Fid, 'r') as tplt:
+    with open(spc3Fid, 'r') as tplt:
       plotFlag = 0
       for line in tplt:
         # find the title line in template config
         if (' plot ' in line ): plotFlag = 1
         if ('set title' in line ):
-            #create title using parsed / substituted values
-          line = ' set title "' + ycIpNam + versSfix + '\\nAp:' + str(Va)      \
-            + ' ' + str(Aa) + ' ' + str(Ka) + ' ' + str(Ra) + ' ' + str(Fa) +'\\n'   \
-            + ' Cr:'  + str(Vc) + ' ' + str(Hc) + ' ' + str(Kc) + ' '          \
-            + str(Rc) + '\\nWi:' + str(Cw) + ' ' + str(Iw) + ' ' + str(Aw)     \
-            + ' ' + str(Ww) + ' ' + str(Pw) + ' ' + str(Lw) + ' ' + str(Dw)   \
-            + ' ' + str(Lr) + ' ' + str(Dr)                                   \
-            + '\\nHs:' + str(Ch) + ' ' + str(Ih) + ' ' + str(Ah)               \
-            + ' ' + str(Wh) + ' ' + str(Ph) + ' '   + str(Lh) + ' ' + str(Dh) \
-            + '\\nVs:' + str(Cv) + ' ' + str(Iv) + ' ' + str(Av)               \
-            + ' ' + str(Wv) + ' ' + str(Pv) + ' '   + str(Lv) + ' ' + str(Dv) \
-            + 'Ys:'+ str(Vy) + ' ' + str(Hy) + '" \n'
+          line  = commNota
         if ( plotFlag < 1):
           # Write line into auto.xml
           apltHndl.write(line)
