@@ -553,7 +553,8 @@ def callPlot():
   global txtZv,  txtZZv, txtZZZv, txtZZp, txtZZZp
   global txtZr,  txtSp,  txtRp,   txtZp,  txtAp,  txtPp, txtWp, txtMp
 #
-  versDict = {'YASIM_VERSION_ORIGINAL':'vOrig', 'YASIM_VERSION_CURRENT':'vCurr', 'YASIM_VERSION_32':'v32'}
+  versDict = {'YASIM_VERSION_ORIGINAL':'vOrig', 'YASIM_VERSION_CURRENT':'vCurr', \
+              'YASIM_VERSION_32':'v32'        , 'YASIM_VERSION_2017.2' :'v2017-2' }
   ## Iterate through each version in dictionary
   for versKywd in versDict.keys():
     versSfix = versDict[versKywd]
