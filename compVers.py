@@ -5,6 +5,7 @@
 #    gnuplots are yasim version's Lift, Drag, Lift vs Drag in separate plots  
 import getopt, os, shlex, subprocess, sys, Tix
 import Tkinter as tk
+from collections import OrderedDict 
 # default yasim config under test
 def normArgs(argv):
   global ycIpFid
@@ -563,9 +564,11 @@ def callPlot():
   global txtZv,  txtZZv, txtZZZv, txtZZp, txtZZZp
   global txtZr,  txtSp,  txtRp,   txtZp,  txtAp,  txtPp, txtWp, txtMp
 #
-  # dictinary of all possible Yasim configuration strings 
-  versDict = {'YASIM_VERSION_ORIGINAL':'vOrig', 'YASIM_VERSION_32':'v32', \
-              'YASIM_VERSION_CURRENT' :'vCurr', '2017.2'          :'v2017-2' }
+  # dictinary of versions in Yasim configuration strings Be Sure vOrig Is First 
+  versDict =             OrderedDict([ ('YASIM_VERSION_ORIGINAL', 'vOrig'), \
+                                      ('YASIM_VERSION_32', 'v32'),         \
+                                      ('YASIM_VERSION_CURRENT', 'vCurr'),  \
+                                      ('2017.2',                'v2017-2') ])
   #create common annotation test parsed / menu-altered values
   commNota = ' set title "' + ycIpNam + 'All Versions Parms:\\nAp:' + str(Va) \
     + ' ' + str(Aa) + ' ' + str(Ka) + ' ' + str(Ra) + ' ' + str(Fa) +'\\n'    \
@@ -639,27 +642,45 @@ def callPlot():
     # resume gnuplot spec file 
     # At EOF of gnuplot specification file append plot lines version's data file name
     ## Iterate through each version in dictionary
-    # 'plot' only at first filespec 
-    if ( versIter == 0) :
+    # 'plot' only at first filespec, set linestyle for visibility
+    line = '    '  
+    if ( versSfix == 'vOrig') :
       line = 'plot'
-    else :
-      line = '    '  
-    line = line + '"' + vdatFid +'" every ::2        using '            \
-       + '1:2 with lines title \'Lift ' + versSfix + '\', \\\n'
+      styl = 'line'
+    if ( versSfix == 'v32') :
+      styl = 'impulses'
+    if ( versSfix == 'vCurr') :
+      styl = 'points'
+    if ( versSfix == 'v2017-2') :
+      styl = 'linespoints'
+    line = line + '"' + vdatFid +'" every 6::2        using '            \
+       + '1:2 with ' + styl + ' title \'Lift ' + versSfix + '\', \\\n'
     liftHndl.write(line)
-    if ( versIter == 0) :
+    line = '    '  
+    if ( versSfix == 'vOrig') :
       line = 'plot'
-    else :
-      line = '    '  
-    line = line + '"' + vdatFid +'" every ::2        using '            \
-       + '1:3 with lines title \'Drag ' + versSfix + '\', \\\n'
+      styl = 'line'
+    if ( versSfix == 'v32') :
+      styl = 'impulses'
+    if ( versSfix == 'vCurr') :
+      styl = 'points'
+    if ( versSfix == 'v2017-2') :
+      styl = 'linespoints'
+    line = line + '"' + vdatFid +'" every 6::2        using '            \
+       + '1:3 with ' + styl + ' title \'Drag ' + versSfix + '\', \\\n'
     dragHndl.write(line)
-    if ( versIter == 0) :
+    line = '    '  
+    if ( versSfix == 'vOrig') :
       line = 'plot'
-    else :
-      line = '    '  
-    line = line + '"' + vdatFid +'" every ::2        using '            \
-       + '1:4 with lines title \'LvsD ' + versSfix  + '\', \\\n'
+      styl = 'line'
+    if ( versSfix == 'v32') :
+      styl = 'impulses'
+    if ( versSfix == 'vCurr') :
+      styl = 'points'
+    if ( versSfix == 'v2017-2') :
+      styl = 'linespoints'
+    line = line + '"' + vdatFid +'" every 6::2        using '            \
+       + '1:4 with ' + styl + ' title \'LvsD ' + versSfix  + '\', \\\n'
     lvsdHndl.write(line)
     versIter += 1
     # run yasim external process to show console output
