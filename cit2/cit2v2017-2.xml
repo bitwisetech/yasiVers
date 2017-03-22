@@ -17,7 +17,7 @@
 -->
 
 
-<airplane mass="8060" version="YASIM_VERSION_2017.2">
+<airplane mass="8060" version="2017.2">
   <approach speed="86" aoa="15" fuel="0.2">
     <control-setting axis="/controls/engines/engine[0]/throttle-lever" value="0.3"/>
     <control-setting axis="/controls/engines/engine[1]/throttle-lever" value="0.3"/>

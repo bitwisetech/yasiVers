@@ -18,13 +18,15 @@ def normArgs(argv):
   yDatFid   = "ytixData.txt"
   # template gnuplot spec files for 2, 3 variables plot
   global spc2Fid
-  spc2Fid   = 'tplt2arg.p'
+  spc2Fid   = '2argTplt.p'
   global spc3Fid
-  spc3Fid   = 'tplt3arg.p'
+  spc3Fid   = '3argTplt.p'
+  global tpltFid
+  tpltFid   = 'compTplt.p'
   global vbl2Fid
-  vbl2Fid   = 'outp2arg.p'
+  vbl2Fid   = '2argSpec.p'
   global vbl3Fid
-  vbl3Fid   = 'outp3arg.p'
+  vbl3Fid   = '3argSpec.p'
   global allvLiftFid
   allvLiftFid  = 'allvLift.p'
   global allvDragFid
@@ -77,8 +79,8 @@ def vblsFromTplt():
   vstabFlag  = 0
   propFlag   = 0
 #
-  Vy = 100
-  Hy = 5000
+  Vy = 180
+  Hy = 2000
   Va = Aa = Ka = Ra = Fa = Vc = Hc = Kc = Rc = 0
   Cw = Iw = Aw = Ww = Pw = Lw = Dw = Lr = Dr = 0
   Ch = Ih = Ah = Wh = Ph = Lh = Dh = Cv = Iv = Av = Wv = Pv = Lv = Dv = 0
@@ -562,8 +564,8 @@ def callPlot():
   global txtZr,  txtSp,  txtRp,   txtZp,  txtAp,  txtPp, txtWp, txtMp
 #
   # dictinary of all possible Yasim configuration strings 
-  versDict = {'YASIM_VERSION_ORIGINAL':'vOrig', 'YASIM_VERSION_CURRENT':'vCurr', \
-              'YASIM_VERSION_32':'v32'        , '2017.2' :'v2017-2' }
+  versDict = {'YASIM_VERSION_ORIGINAL':'vOrig', 'YASIM_VERSION_32':'v32', \
+              'YASIM_VERSION_CURRENT' :'vCurr', '2017.2'          :'v2017-2' }
   #create common annotation test parsed / menu-altered values
   commNota = ' set title "' + ycIpNam + 'All Versions Parms:\\nAp:' + str(Va) \
     + ' ' + str(Aa) + ' ' + str(Ka) + ' ' + str(Ra) + ' ' + str(Fa) +'\\n'    \
@@ -577,14 +579,14 @@ def callPlot():
     + ' ' + str(Wv) + ' ' + str(Pv) + ' '   + str(Lv) + ' ' + str(Dv)         \
     + 'Ys:'+ str(Vy) + ' ' + str(Hy) + '" \n'
   # uncomment line below to supress parms legend
-  commNota = ' set title "' + ycIpNam + 'All Versions" \n'
+  commNota = ' set title "compVers.py ' + ycIpNam + ' All Versions : ' + Vy + 'kTAS at ' + Hy + 'ft" \n'
   #setup write handles for three separate gnuplot spec files     
   liftHndl  = open(allvLiftFid, 'w', 0)
   dragHndl  = open(allvDragFid, 'w', 0)
   lvsdHndl  = open(allvLvsDFid, 'w', 0)
   # partially create gnuplot config files up until plot specifications 
-  # use three-args template 
-  with open(spc3Fid, 'r') as tplt:
+  # use comp template 
+  with open(tpltFid, 'r') as tplt:
     plotFlag = 0
     for line in tplt:
       # set flag near end when 'plot' string is found
@@ -657,7 +659,7 @@ def callPlot():
     else :
       line = '    '  
     line = line + '"' + vdatFid +'" every ::2        using '            \
-       + '1:4 with lines title \'LvsD ' + versSfix + '\', \\\n'
+       + '1:4 with lines title \'LvsD ' + versSfix  + '\', \\\n'
     lvsdHndl.write(line)
     versIter += 1
     # run yasim external process to show console output
@@ -675,6 +677,14 @@ def callPlot():
     yDatHndl.close
     p.wait()
     #
+    # run yasim external process for saved dataset file
+    vDatHndl = open(vdatFid, 'w')
+    command_line = 'yasim ' + vcfgFid + ' -g -a '+ str(Hy) + ' -s ' + str(Vy)
+    args = shlex.split(command_line)
+    p = subprocess.Popen(args, stdout=vDatHndl)
+    vDatHndl.close
+    p.wait()
+    #
   #end step through version dictionary
   liftHndl.close
   dragHndl.close
@@ -682,14 +692,6 @@ def callPlot():
   tplt.close
   #
   ##
-  # run yasim external process for saved dataset file
-  vDatHndl = open(vdatFid, 'w')
-  command_line = 'yasim ' + vcfgFid + ' -g -a '+ str(Hy) + ' -s ' + str(Vy)
-  args = shlex.split(command_line)
-  p = subprocess.Popen(args, stdout=vDatHndl)
-  vDatHndl.close
-  p.wait()
-  #
   # run gnuplot with all versions Lift command file to plot dataset
   command_line = "gnuplot -p " + allvLiftFid
   args = shlex.split(command_line)

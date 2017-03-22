@@ -4,7 +4,7 @@
  unset log                              # remove any log-scaling
  unset label                            # remove any previous labels
  #
-  set term qt size 360, 200
+  set term qt size 400, 320
  # set term wxt size 240, 200
  # set term wxt size 380, 150
  # set term wxt size 500, 180
@@ -12,7 +12,7 @@
  set ytic auto                          # set ytics automatically
  set  grid xtics ytics
  show grid
- set title "c310All Versions Parms:\nAp:70.0 16.0 1.0 0.4 1.0\n Cr:223.0 20000.0 1.0 1.0\nWi:0.8 0.1 16.0 4.0 1.5 1.5 1.2 1.3 1.2\nHs:0 1 16.0 4.0 1.5 1.68 1.2\nVs:0 1 16.0 4.0 0 1.3 1.2Ys:100 5000" 
+ set title "compVers.py c310 All Versions : 180kTAS at 2000ft" 
 # set xlabel "AoA (Deg)"
 # set ylabel "Force (G)"
 #plot  "outpData.txt" every ::155::210 using 1:2 with lines title 'lift', \

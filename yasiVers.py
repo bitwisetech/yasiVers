@@ -18,13 +18,13 @@ def normArgs(argv):
   yDatFid   = "ytixData.txt"
   # template gnuplot spec files for 2, 3 variables plot
   global spc2Fid
-  spc2Fid   = 'tplt2arg.p'
+  spc2Fid   = '2argTplt.p'
   global spc3Fid
-  spc3Fid   = 'tplt3arg.p'
+  spc3Fid   = '3argTplt.p'
   global vbl2Fid
-  vbl2Fid   = 'outp2arg.p'
+  vbl2Fid   = '2argSpec.p'
   global vbl3Fid
-  vbl3Fid   = 'outp3arg.p'
+  vbl3Fid   = '3argSpec.p'
   # get yasim config FileID from args
   try:
     opts, args = getopt.getopt(argv, "f:", "file=")
@@ -71,8 +71,8 @@ def vblsFromTplt():
   vstabFlag  = 0
   propFlag   = 0
 #
-  Vy = 100
-  Hy = 5000
+  Vy = 180
+  Hy = 2000
   Va = Aa = Ka = Ra = Fa = Vc = Hc = Kc = Rc = 0
   Cw = Iw = Aw = Ww = Pw = Lw = Dw = Lr = Dr = 0
   Ch = Ih = Ah = Wh = Ph = Lh = Dh = Cv = Iv = Av = Wv = Pv = Lv = Dv = 0
@@ -554,8 +554,8 @@ def callPlot():
   global txtZv,  txtZZv, txtZZZv, txtZZp, txtZZZp
   global txtZr,  txtSp,  txtRp,   txtZp,  txtAp,  txtPp, txtWp, txtMp
 #
-  versDict = {'YASIM_VERSION_ORIGINAL':'vOrig', 'YASIM_VERSION_CURRENT':'vCurr', \
-              'YASIM_VERSION_32':'v32'        , '2017.2' :'v2017-2' }
+  versDict = {'YASIM_VERSION_ORIGINAL':'vOrig', 'YASIM_VERSION_32':'v32', \
+              'YASIM_VERSION_CURRENT' :'vCurr', '2017.2'          :'v2017-2' }
   ## Iterate through each version in dictionary
   for versKywd in versDict.keys():
     versSfix = versDict[versKywd]
@@ -606,7 +606,7 @@ def callPlot():
       + ' ' + str(Wv) + ' ' + str(Pv) + ' '   + str(Lv) + ' ' + str(Dv)        \
       + 'Ys:'+ str(Vy) + ' ' + str(Hy) + '" \n'
     # uncomment line below to supress parms legend
-    commNota = ' set title "' + ycIpNam + versSfix +'" \n'
+    commNota = ' set title "yasiVers.py ' + ycIpNam + ' ' + versSfix + ' : ' + Vy + 'kTAS at ' + Hy + 'ft" \n'
     with open(spc2Fid, 'r') as tplt:
       plotFlag = 0
       for line in tplt:
