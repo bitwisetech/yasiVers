@@ -1,4 +1,3 @@
-  cd/theDownloadedDir;  python yasiVers.py -f c310.xml  ( aadjust as desired, press 'Plot' ) 
 
 yasiVers.py  is a utility to automatically create gnuplot displays from FlightGear Yasim
   configuration files. Lift, Drag, L/D plots are created using different Yasim 'Version' 
@@ -14,3 +13,5 @@ are saved separately from the original yasim xml configuration file.
 compVers.py is useful for quickly checking version effects, separate gnuplots for Lift, Drag and LvsD
   are displayed with each plot depicting curves for different Yasim versin strings.  
  
+example:
+  cd/theDownloadedDir/c310;  python ../compVers.py -f c310.xml  ( adjust as desired, press 'Plot' ) 
