@@ -564,12 +564,12 @@ def callPlot():
   global txtZv,  txtZZv, txtZZZv, txtZZp, txtZZZp
   global txtZr,  txtSp,  txtRp,   txtZp,  txtAp,  txtPp, txtWp, txtMp
 #
-  # dictinary of versions in Yasim configuration strings Be Sure vOrig Is First 
-  versDict =             OrderedDict([ ('YASIM_VERSION_ORIGINAL', 'vOrig'), \
-                                      ('YASIM_VERSION_32', 'v32'),         \
-                                      ('YASIM_VERSION_CURRENT', 'vCurr'),  \
-                                      ('2017.2',                'v2017-2') ])
-  #create common annotation test parsed / menu-altered values
+  # Versions in Yasim configuration strings, OrderedDict, Be Sure vOrig Is First 
+  versDict =             OrderedDict([ ('YASIM_VERSION_ORIGINAL', 'vOrig'),   \
+                                       ('YASIM_VERSION_32', 'v32'),           \
+                                       ('YASIM_VERSION_CURRENT', 'vCurr'),    \
+                                       ('2017.2',                'v2017-2') ])
+  #create common annotation test parsed / menu-altered values, big version with all menu parms 
   commNota = ' set title "' + ycIpNam + 'All Versions Parms:\\nAp:' + str(Va) \
     + ' ' + str(Aa) + ' ' + str(Ka) + ' ' + str(Ra) + ' ' + str(Fa) +'\\n'    \
     + ' Cr:'  + str(Vc) + ' ' + str(Hc) + ' ' + str(Kc) + ' '                 \
@@ -581,7 +581,7 @@ def callPlot():
     + '\\nVs:' + str(Cv) + ' ' + str(Iv) + ' ' + str(Av)                      \
     + ' ' + str(Wv) + ' ' + str(Pv) + ' '   + str(Lv) + ' ' + str(Dv)         \
     + 'Ys:'+ str(Vy) + ' ' + str(Hy) + '" \n'
-  # uncomment line below to supress parms legend
+  # uncomment line below to have gnuplot show shortened legend 
   commNota = ' set title "compVers.py ' + ycIpNam + ' All Versions : ' + Vy + 'kTAS at ' + Hy + 'ft" \n'
   #setup write handles for three separate gnuplot spec files     
   liftHndl  = open(allvLiftFid, 'w', 0)
@@ -653,7 +653,7 @@ def callPlot():
       styl = 'points'
     if ( versSfix == 'v2017-2') :
       styl = 'linespoints'
-    line = line + '"' + vdatFid +'" every 6::2        using '            \
+    line = line + '"' + vdatFid +'" every 4::2        using '            \
        + '1:2 with ' + styl + ' title \'Lift ' + versSfix + '\', \\\n'
     liftHndl.write(line)
     line = '    '  
@@ -666,7 +666,7 @@ def callPlot():
       styl = 'points'
     if ( versSfix == 'v2017-2') :
       styl = 'linespoints'
-    line = line + '"' + vdatFid +'" every 6::2        using '            \
+    line = line + '"' + vdatFid +'" every 4::2        using '            \
        + '1:3 with ' + styl + ' title \'Drag ' + versSfix + '\', \\\n'
     dragHndl.write(line)
     line = '    '  
@@ -679,7 +679,7 @@ def callPlot():
       styl = 'points'
     if ( versSfix == 'v2017-2') :
       styl = 'linespoints'
-    line = line + '"' + vdatFid +'" every 6::2        using '            \
+    line = line + '"' + vdatFid +'" every 4::2        using '            \
        + '1:4 with ' + styl + ' title \'LvsD ' + versSfix  + '\', \\\n'
     lvsdHndl.write(line)
     versIter += 1

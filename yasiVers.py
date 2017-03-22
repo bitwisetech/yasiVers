@@ -5,6 +5,7 @@
 #    gnuplots are Lift + Drag and Lift + Drag + LvsD for each yasim version 
 import getopt, os, shlex, subprocess, sys, Tix
 import Tkinter as tk
+from collections import OrderedDict 
 # default yasim config under test
 def normArgs(argv):
   global ycIpFid
@@ -554,8 +555,11 @@ def callPlot():
   global txtZv,  txtZZv, txtZZZv, txtZZp, txtZZZp
   global txtZr,  txtSp,  txtRp,   txtZp,  txtAp,  txtPp, txtWp, txtMp
 #
-  versDict = {'YASIM_VERSION_ORIGINAL':'vOrig', 'YASIM_VERSION_32':'v32', \
-              'YASIM_VERSION_CURRENT' :'vCurr', '2017.2'          :'v2017-2' }
+    # Versions in Yasim configuration strings, OrderedDict, Be Sure vOrig Is First 
+  versDict =             OrderedDict([ ('YASIM_VERSION_ORIGINAL', 'vOrig'),   \
+                                       ('YASIM_VERSION_32', 'v32'),           \
+                                       ('YASIM_VERSION_CURRENT', 'vCurr'),    \
+                                       ('2017.2',                'v2017-2') ])
   ## Iterate through each version in dictionary
   for versKywd in versDict.keys():
     versSfix = versDict[versKywd]
@@ -593,7 +597,7 @@ def callPlot():
     ##
     ## auto create 2 vble gnuplot config file
     apltHndl  = open(vbl2Fid, 'w', 0)
-    #create common annotation test parsed / menu-altered values
+    #create common annotation test parsed / menu-altered values, big version with all menu parms 
     commNota = ' set title "' + ycIpNam + versSfix + 'Parms:\\nAp:' + str(Va)  \
       + ' ' + str(Aa) + ' ' + str(Ka) + ' ' + str(Ra) + ' ' + str(Fa) +'\\n'   \
       + ' Cr:'  + str(Vc) + ' ' + str(Hc) + ' ' + str(Kc) + ' '                \
@@ -605,7 +609,7 @@ def callPlot():
       + '\\nVs:' + str(Cv) + ' ' + str(Iv) + ' ' + str(Av)                     \
       + ' ' + str(Wv) + ' ' + str(Pv) + ' '   + str(Lv) + ' ' + str(Dv)        \
       + 'Ys:'+ str(Vy) + ' ' + str(Hy) + '" \n'
-    # uncomment line below to supress parms legend
+    # uncomment line below to have gnuplot show shortened legend 
     commNota = ' set title "yasiVers.py ' + ycIpNam + ' ' + versSfix + ' : ' + Vy + 'kTAS at ' + Hy + 'ft" \n'
     with open(spc2Fid, 'r') as tplt:
       plotFlag = 0
