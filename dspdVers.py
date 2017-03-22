@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #
-## compVers.py tix menu driven yasim version explorer with gnuplot displays
+## dspdVers.py tix menu driven yasim version explorer with gnuplot displays
 #    takes a given yasim config file, runs cmdline yasim with different versions specified
-#    gnuplots are yasim version's Lift, Drag, Lift vs Drag in separate plots  
+#    gnuplots are yasim version's Lift, Drag, Lift vs Drag, Drag vs Speed in separate plots  
 import getopt, os, shlex, subprocess, sys, Tix
 import Tkinter as tk
 from collections import OrderedDict 
@@ -584,7 +584,7 @@ def callPlot():
     + ' ' + str(Wv) + ' ' + str(Pv) + ' '   + str(Lv) + ' ' + str(Dv)         \
     + 'Ys:'+ str(Vy) + ' ' + str(Hy) + '" \n'
   # uncomment line below to have gnuplot show shortened legend 
-  commNota = ' set title "compVers.py ' + ycIpNam + ' All Versions : ' + Vy + 'kTAS at ' + Hy + 'ft" \n'
+  commNota = ' set title "dspdVers.py ' + ycIpNam + ' All Versions : ' + Vy + 'kTAS at ' + Hy + 'ft" \n'
   #setup write handles for three separate gnuplot spec files     
   liftHndl  = open(allvLiftFid, 'w', 0)
   dragHndl  = open(allvDragFid, 'w', 0)

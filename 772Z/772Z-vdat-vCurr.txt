@@ -1,4 +1,4 @@
-This aircraft uses yasim version '2017.2'
+This aircraft uses yasim version 'YASIM_VERSION_CURRENT'
 -15 -0.804683 0.0568408 -14.1568
 -14 -0.942886 0.074829 -12.6005
 -13 -0.920972 0.0592583 -15.5417

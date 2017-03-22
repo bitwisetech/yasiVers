@@ -18,7 +18,7 @@
 #plot  "outpData.txt" every ::155::210 using 1:2 with lines title 'lift', \
 #      "outpData.txt" every ::155::210 using 1:3 with lines title 'drag', \
 #      "outpData.txt" every ::155::210 using 1:4 with lines title 'LD'
-plot"772Z-vdat-vOrig.txt" every 4::2        using 1:4 with line title 'LvsD vOrig', \
-    "772Z-vdat-v32.txt" every 4::2        using 1:4 with impulses title 'LvsD v32', \
-    "772Z-vdat-vCurr.txt" every 4::2        using 1:4 with points title 'LvsD vCurr', \
-    "772Z-vdat-v2017-2.txt" every 4::2        using 1:4 with linespoints title 'LvsD v2017-2', \
+plot"772Z-dspd-vOrig.txt" every 4::3        using 1:2 with line title 'DragVsSpd vOrig', \
+    "772Z-dspd-v32.txt" every 4::3        using 1:2 with impulses title 'DragVsSpd v32', \
+    "772Z-dspd-vCurr.txt" every 4::3        using 1:2 with points title 'DragVsSpd vCurr', \
+    "772Z-dspd-v2017-2.txt" every 4::3        using 1:2 with linespoints title 'DragVsSpd v2017-2', \
