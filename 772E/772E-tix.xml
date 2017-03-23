@@ -85,7 +85,7 @@ WEIGHT/lbs  Vref
   <fuselage ax="4.0" ay="-9.8" az="-3" bx="-1.8" by="-9.8" bz="-3"
       width="3.8" taper="1.0"/>
 
-  <wing x="-0.0" y="3.095" z="-1.66" length="30.6" chord="10.0" sweep="28.7" taper="0.15" dihedral="7" camber="0.0" incidence="2" twist="-2">
+  <wing x="-0.0" y="3.095" z="-1.66" length="30.6" chord="10.0" sweep="28.7" taper="0.15" dihedral="7" camber="0.01" incidence="2" twist="-2">
       <stall aoa="16.0" width="6.0" peak="1.5"/>
       <flap0 start="0" end=".56" lift="1.5" drag="1.7"/>
       <flap1 start=".64" end=".88" lift="1.5" drag="1.2"/>

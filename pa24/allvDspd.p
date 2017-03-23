@@ -12,7 +12,7 @@
  set ytic auto                          # set ytics automatically
  set  grid xtics ytics
  show grid
- set title "compVers.py pa24 All Versions : 180kTAS at 2000ft" 
+ set title "dspdVers.py pa24 All Versions : 180kTAS at 2000ft" 
 # set xlabel "AoA (Deg)"
 # set ylabel "Force (G)"
 #plot  "outpData.txt" every ::155::210 using 1:2 with lines title 'lift', \
