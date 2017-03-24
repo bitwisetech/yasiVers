@@ -4,7 +4,7 @@
  unset log                              # remove any log-scaling
  unset label                            # remove any previous labels
  #
-  set term qt size 360, 320
+  set term qt size 360, 229
  # set term wxt size 240, 200
  # set term wxt size 380, 150
  # set term wxt size 500, 180
@@ -19,6 +19,6 @@
 #      "outpData.txt" every ::155::210 using 1:3 with lines title 'drag', \
 #      "outpData.txt" every ::155::210 using 1:4 with lines title 'LD'
 plot"772E-vdat-vOrig.txt" every 4::2        using 1:3 with line title 'Drag vOrig', \
+    "772E-vdat-vNone.txt" every 4::2        using 1:3 with line title 'Drag vNone', \
     "772E-vdat-v32.txt" every 4::2        using 1:3 with impulses title 'Drag v32', \
-    "772E-vdat-vCurr.txt" every 4::2        using 1:3 with points title 'Drag vCurr', \
     "772E-vdat-v2017-2.txt" every 4::2        using 1:3 with linespoints title 'Drag v2017-2', \

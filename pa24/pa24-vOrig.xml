@@ -19,6 +19,7 @@
 -->
 
 <airplane mass="1742.9" version="YASIM_VERSION_ORIGINAL">
+
 <!-- Approach configuration -->
 <approach speed="55" aoa="14" fuel="0.6">  <!-- 55 -->
   <control-setting axis="/controls/engines/engine[0]/throttle" value="0.4"/>  <!--0.2-->

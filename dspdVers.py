@@ -568,9 +568,9 @@ def callPlot():
 #
   # Versions in Yasim configuration strings, OrderedDict, Be Sure vOrig Is First 
   versDict =             OrderedDict([ ('YASIM_VERSION_ORIGINAL', 'vOrig'),   \
-                                       ('YASIM_VERSION_32', 'v32'),           \
-                                       ('YASIM_VERSION_CURRENT', 'vCurr'),    \
-                                       ('2017.2',                'v2017-2') ])
+                                       ('                      ', 'vNone'),   \
+                                       ('YASIM_VERSION_32',         'v32'),   \
+                                       ('2017.2',               'v2017-2') ])
   #create common annotation test parsed / menu-altered values, big version with all menu parms 
   commNota = ' set title "' + ycIpNam + 'All Versions Parms:\\nAp:' + str(Va) \
     + ' ' + str(Aa) + ' ' + str(Ka) + ' ' + str(Ra) + ' ' + str(Fa) +'\\n'    \
@@ -634,7 +634,10 @@ def callPlot():
             lastIndx = sepsIndx
           # Use index list to split line into text and numbers
           lineMass = line[0:(sepsList[1]+1)]
-          line = lineMass + ' version="' + versKywd + '">'
+          if ( versSfix   == 'vNone' ):
+            line = lineMass + '                           >\n'
+          else:   
+            line = lineMass + ' version="' + versKywd + '">\n'
         # Write unchanged/modified line into auto.xml
         vcfgHndl.write(line)
       #close and sync files

@@ -4,7 +4,7 @@
  unset log                              # remove any log-scaling
  unset label                            # remove any previous labels
  #
-  set term qt size 400, 320
+  set term qt size 360, 229
  # set term wxt size 240, 200
  # set term wxt size 380, 150
  # set term wxt size 500, 180
@@ -12,13 +12,13 @@
  set ytic auto                          # set ytics automatically
  set  grid xtics ytics
  show grid
- set title "compVers.py c310 All Versions : 180kTAS at 2000ft" 
+ set title "dspdVers.py c310 All Versions : 180kTAS at 2000ft" 
 # set xlabel "AoA (Deg)"
 # set ylabel "Force (G)"
 #plot  "outpData.txt" every ::155::210 using 1:2 with lines title 'lift', \
 #      "outpData.txt" every ::155::210 using 1:3 with lines title 'drag', \
 #      "outpData.txt" every ::155::210 using 1:4 with lines title 'LD'
-plot"c310-datv2017-2.txt" every ::2        using 1:3 with lines title 'Drag v2017-2', \
-    "c310-datvOrig.txt" every ::2        using 1:3 with lines title 'Drag vOrig', \
-    "c310-datvCurr.txt" every ::2        using 1:3 with lines title 'Drag vCurr', \
-    "c310-datv32.txt" every ::2        using 1:3 with lines title 'Drag v32', \
+plot"c310-vdat-vOrig.txt" every 4::2        using 1:3 with line title 'Drag vOrig', \
+    "c310-vdat-vNone.txt" every 4::2        using 1:3 with line title 'Drag vNone', \
+    "c310-vdat-v32.txt" every 4::2        using 1:3 with impulses title 'Drag v32', \
+    "c310-vdat-v2017-2.txt" every 4::2        using 1:3 with linespoints title 'Drag v2017-2', \

@@ -4,7 +4,7 @@
  unset log                              # remove any log-scaling
  unset label                            # remove any previous labels
  #
-  set term qt size 360, 320
+  set term qt size 360, 229
  # set term wxt size 240, 200
  # set term wxt size 380, 150
  # set term wxt size 500, 180
@@ -19,6 +19,6 @@
 #      "outpData.txt" every ::155::210 using 1:3 with lines title 'drag', \
 #      "outpData.txt" every ::155::210 using 1:4 with lines title 'LD'
 plot"772Z-dspd-vOrig.txt" every 4::3        using 1:2 with line title 'DragVsSpd vOrig', \
+    "772Z-dspd-vNone.txt" every 4::3        using 1:2 with line title 'DragVsSpd vNone', \
     "772Z-dspd-v32.txt" every 4::3        using 1:2 with impulses title 'DragVsSpd v32', \
-    "772Z-dspd-vCurr.txt" every 4::3        using 1:2 with points title 'DragVsSpd vCurr', \
     "772Z-dspd-v2017-2.txt" every 4::3        using 1:2 with linespoints title 'DragVsSpd v2017-2', \
