@@ -1,0 +1,14 @@
+This aircraft uses yasim version 'YASIM_VERSION_ORIGINAL'
+SOLUTION FAILURE: Solution failed to converge after 10000 iterations
+Solution results:       Iterations: 10002
+ Drag Coefficient: 34.095539
+       Lift Ratio: 117.450310
+       Cruise AoA: 0.273487
+   Tail Incidence: -2.839416
+Approach Elevator: -0.421227
+               CG: x:1.125, y:-0.000, z:-0.590
+
+Inertia tensor [kg*m^2], origo at CG:
+  807.564,  -0.000,  91.933
+   -0.000, 833.528,   0.000
+   91.933,   0.000, 1385.907
