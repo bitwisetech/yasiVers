@@ -6,7 +6,7 @@ yasiVers.py  is a utility to automatically create gnuplot displays from FlightGe
  are saved separately from the original yasim xml configuration file. 
 
 The python script depends on Tkinter being available for import and gnuplot should be installed.
- It's a work in process, it's likely the parser will throw errors depending on the line-bt-line 
+ It's a work in process, it's likely the parser will throw errors depending on the line-by-line 
  form of the input configuration file: most likely the 'wing', 'hstab' and 'vstab' definitions
  will need to be unsplit into single long line definitions. 
  
@@ -29,6 +29,7 @@ For both compVers.py and dspdVers.py the plotted line styles are chosen to highl
   highlight changes from Original due to versin 32 fixes. 
  
 examples: 
+  cd/theClonedDir/t6;    python ../yasiVers.py -f t6-yasim.xml    ( adjust as desired, press 'Plot' ) 
   cd/theClonedDir/772E;  python ../yasiVers.py -f 772E.xml        ( adjust as desired, press 'Plot' ) 
   cd/theClonedDir/772E;  python ../compVers.py -f 772E.xml        ( adjust as desired, press 'Plot' ) 
   cd/theClonedDir/772E;  python ../dspdVers.py -f 772E.xml        ( adjust as desired, press 'Plot' ) 

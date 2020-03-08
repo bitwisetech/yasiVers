@@ -3,34 +3,44 @@
 ## yasiVers.py tix menu driven yasim version explorer with gnuplot displays
 #    takes a given yasim config file, runs cmdline yasim with different versions specified
 #    gnuplots are Lift + Drag and Lift + Drag + LvsD for each yasim version 
-import getopt, os, shlex, subprocess, sys, Tix
-import Tkinter as tk
+## Tix tix for python 3  import getopt, os, shlex, subprocess, sys, Tix
+import getopt, os, shlex, subprocess, sys
+import tkinter as tk
+from tkinter import tix
 from collections import OrderedDict 
-# default yasim config under test
+##
+#  Set Defaults and parse cammand args 
 def normArgs(argv):
+  ## Default File IDs 
+  # Original yasim config under test
   global ycIpFid
-  ycIpFid   = 'yasimCfg.xml'
+  ycIpFid   = 'yasimCfg.xml'              
   global ycIpNam
   ycIpNam = ycIpFid.find('.xml')
   ycIpNam = ycIpFid[0:ycIpNam]
+  # Plotted yasim config file using Tix Menu modified elements
   global ycOpFid
   ycOpFid   = 'ytixOutp.xml'
+  # Tabulated yasim data using Tix Menu modified elements for GNU Plot 
   global yDatFid
   yDatFid   = "ytixData.txt"
-  # template gnuplot spec files for 2, 3 variables plot
+  # Template gnuplot spec files for 2, 3 variables plot
   global spc2Fid
-  spc2Fid   = '2argTplt.p'
+  #spc2Fid   = '2argTplt.p'
+  spc2Fid   = 'LvsDTplt.p'
   global spc3Fid
   spc3Fid   = '3argTplt.p'
   global vbl2Fid
-  vbl2Fid   = '2argSpec.p'
+  #vbl2Fid   = '2argSpec.p'
+  vbl2Fid   = 'LvsDSpec.p'
   global vbl3Fid
   vbl3Fid   = '3argSpec.p'
+  ##   
   # get yasim config FileID from args
   try:
     opts, args = getopt.getopt(argv, "f:", "file=")
   except getopt.GetoptError:
-     print 'sorry, I need -f or file= yasim config  fileID '
+     print ('sorry, I need -f or file= yasim config  fileID ')
      sys.exit(2)
     #
   for opt, arg in opts:
@@ -38,54 +48,66 @@ def normArgs(argv):
       ycIpFid = arg
       ycIpNam = ycIpFid.find('.xml')
       ycIpNam = ycIpFid[0:ycIpNam]
+##
+#  Return numeric value from 'name="nn.nnn"' tuple in config file
+#
+def tuplValu( tName, tText ):
+  # opening quote is '="' chars beyond name 
+  begnValu = tText.find( tName) + len(tName) + 2 
+  endsValu = begnValu + (tText[begnValu:]).find('"')
+  return( float( tText[(begnValu) : (endsValu) ] ))
 
 ##
-# Scan template yasim cfig and extract numeric elements, copy for tix menu
+#  Return given text with given value substituted at name="value" in config file
+#
+def tuplSubs( tName, tText, tValu ):
+  # opening quote is '="' chars beyond name 
+  begnValu = tText.find( tName) + len(tName) + 2 
+  endsValu = begnValu + (tText[begnValu:]).find('"')
+  resp = tText[ : begnValu] + str(tValu) + tText[endsValu :]
+  return(resp)
+
+
+##
+# Scan original Yyasim config and extract numeric elements, save for tix menu
 #
 def vblsFromTplt():
   global ycIpFid, ycIpNam, ycOpFid, yDatFid
   global spc2Fid, spc3Fid, vbl2Fid, vbl3Fid
+  ## These vbles correspond to the elements in the config file: 
   global Va, Aa, Ka, Ra, Fa                                    # Approach  parms
   global Vc, Hc, Kc, Rc                                        # Cruise    parms 
-  global Cw, Iw, Aw, Ww, Pw, Lw, Dw, Lr, Dr                    # Wing/Ailr parms
+  global Cw, Iw, Aw, Ww, Pw, Lf, Df, Lr, Dr                    # Wing/Ailr parms
   global Ch, Ih, Ah, Wh, Ph, Lh, Dh                            # Hstab     parms
   global Cv, Iv, Av, Wv, Pv, Lv, Dv                            # Vstab     parms 
   global Sp, Rp, Ap, Pp, Wp, Mp                                # Prop      parms 
   global Hy, Vy                                                # Solver    parms
 #
-  # extracted text fields for saved parameter values 
-  global textVa, textAa, textKa, textRa, textFa
-  global textVc, textHc, textKc,  textRc
-  global textCw, textIw, textAw,  textWw, textPw, textLw, textDw, textLr, textDr  
-  global textCh, textIh, textAh,  textWh, textPh, textLh, textDh
-  global textCv, textIv, textAv,  textWv, textPv, textLv, textDv
-  global txtZa,  txtZZa, txtZZZa, txtZc,  txtZZc
-  global txtZw,  txtZZw, txtZZZw, txtZh,  txtZZh, txtZZZh
-  global txtZv,  txtZZv, txtZZZv, txtZZp, txtZZZp
-  global txtZr,  txtSp,  txtRp,   txtZp,  txtAp,  txtPp, txtWp, txtMp
-#  
-  # flags indicate parsing has detected various sections of yasim config 
+  # These flags indicate parsing has detected various sections of yasim config 
   apprFlag   = 0
   cruzFlag   = 0
   wingFlag   = 0
   hstabFlag  = 0
   vstabFlag  = 0
   propFlag   = 0
-#
-  Vy = 180
-  Hy = 2000
+# # Yasim 'Solve At' values for Speed and Altitude 
+  Vy = 130
+  Hy = 4000
+  # 
   Va = Aa = Ka = Ra = Fa = Vc = Hc = Kc = Rc = 0
-  Cw = Iw = Aw = Ww = Pw = Lw = Dw = Lr = Dr = 0
-  Ch = Ih = Ah = Wh = Ph = Lh = Dh = Cv = Iv = Av = Wv = Pv = Lv = Dv = 0
+  Cw = Aw = Ww = Pw = Lf = Df = Lr = Dr = 0
+  Ch = Ah = Wh = Ph = Lh = Dh = Cv = Iv = Av = Wv = Pv = Lv = Dv = 0
+  Iw = Ih = 1.00
   Sp = Rp = Ap = Rp = Wp = Mp = 0
 #
-  ## # open auto yasim config file
+  ## # open Yasim config file
   ## ycOpHndl  = open(ycOpFid, 'w', 0)
   # Phase 1 open base yasim config file and parse elements
   with open(ycIpFid, 'r') as ycIpHndl:
   # step each line in template yasim config file
     for line in ycIpHndl:
-      # flag on appr section
+      # set / clear flags for each section
+      # flag on approach section
       if '<approach' in line:
         apprFlag = 1
       if '</approach' in line:
@@ -105,343 +127,194 @@ def vblsFromTplt():
         hstabFlag = 1
       if '</hstab' in line:
         hstabFlag = 0
+      # flag on vstab section
       if '<vstab' in line:
         vstabFlag = 1
       if '</vstab' in line:
         vstabFlag = 0
       ### appr section parse approach speed and AoA elements
       if (apprFlag == 1):
+        ##
         #in appr section, find elements
         if ('approach speed' in line):
-          # make an index list of double quotes in the line
-          sepsList = []
-          sepsChar = '"'
-          lastIndx = 0
-          while (lastIndx > -1):
-            sepsIndx = line.find( sepsChar, (lastIndx +1))
-            if (sepsIndx > 0) :
-              sepsList.append(sepsIndx)
-            lastIndx = sepsIndx
-          # Use index list to split line into text and numbers
-          textVa = line[0:(sepsList[0]+1)]
-          Va     = float ( (line[(sepsList[0]+1):(sepsList[1])]))
-          textAa = line[(sepsList[1]):(sepsList[2]+1)]
-          Aa     = float(line[(sepsList[2]+1):(sepsList[3])])
-          textKa = line[(sepsList[3]):(sepsList[4]+1)]
-          Ka     = float(line[(sepsList[4]+1):(sepsList[5])])
-          txtZa  = line[(sepsList[5]):]
-          line   = textVa + str(Va) + textAa + str(Aa) + textKa + str(Ka)   \
-                 + txtZa
+          # find element names, save values to post in Tix gui
+          if ( 'speed' in line):
+            Va = tuplValu('speed', line)
+          #
+          if ( 'aoa' in line):
+            Aa = tuplValu('aoa', line)
+          #
+          if ( 'fuel' in line):
+            Ka = tuplValu('fuel', line)
+          #
+        #print ('Va: ', Va, ' Aa: ', Aa, ' Ka: ', Ka)  
         if ('throttle' in line):
-          # make an index list of double quotes in the line
-          sepsList = []
-          sepsChar = '"'
-          lastIndx = 0
-          while (lastIndx > -1):
-            sepsIndx = line.find( sepsChar, (lastIndx +1))
-            if (sepsIndx > 0) :
-              sepsList.append(sepsIndx)
-            lastIndx = sepsIndx
-          # Use index list to split line into text and numbers
-          textRa = line[0:(sepsList[2]+1)]
-          Ra     = float ( (line[(sepsList[2]+1):(sepsList[3])]))
-          txtZZa = line[(sepsList[3]):]
-          line   = textRa + str(Ra) + txtZZa
+          if ( 'value' in line):
+            Ra = tuplValu('value', line)
+          #
         if ('flaps' in line):
-          # make an index list of double quotes in the line
-          sepsList = []
-          sepsChar = '"'
-          lastIndx = 0
-          while (lastIndx > -1):
-            sepsIndx = line.find( sepsChar, (lastIndx +1))
-            if (sepsIndx > 0) :
-              sepsList.append(sepsIndx)
-            lastIndx = sepsIndx
-          # Use index list to split line into text and numbers
-          textFa  = line[0:(sepsList[2]+1)]
-          Fa      = float ( (line[(sepsList[2]+1):(sepsList[3])]))
-          txtZZZa = line[(sepsList[3]):]
-          line    = textFa + str(Fa) + txtZZZa
-        ###
+          if ( 'value' in line):
+            Fa = tuplValu('value', line)
+          #
+        #print ('Ra: ', Ra, ' Fa: ', Fa,)  
       ### cruise section parse cruise speed element
       if (cruzFlag == 1):
-        #in cruise section, find element
-        if ('cruise speed' in line):
-          # make an index list of double quotes in the line
-          sepsList = []
-          sepsChar = '"'
-          lastIndx = 0
-          while (lastIndx > -1):
-            sepsIndx = line.find( sepsChar, (lastIndx +1))
-            if (sepsIndx > 0) :
-              sepsList.append(sepsIndx)
-            lastIndx = sepsIndx
-          # Use index list to split line into text and numbers
-          textVc = line[0:(sepsList[0]+1)]
-          Vc     = float ( (line[(sepsList[0]+1):(sepsList[1])]))
-          textHc = line[(sepsList[1]):(sepsList[2]+1)]
-          Hc     = float ( (line[(sepsList[2]+1):(sepsList[3])]))
-          textKc = line[(sepsList[3]):(sepsList[4]+1)]
-          Kc     = float ( (line[(sepsList[4]+1):(sepsList[5])]))
-          txtZc  = line[(sepsList[5]):]
-          line   = textVc + str(Vc) + textHc + str(Hc) + textKc + str(Kc)   \
-                 + txtZc
-        if ('throttle' in line):
-          # make an index list of double quotes in the line
-          sepsList = []
-          sepsChar = '"'
-          lastIndx = 0
-          while (lastIndx > -1):
-            sepsIndx = line.find( sepsChar, (lastIndx +1))
-            if (sepsIndx > 0) :
-              sepsList.append(sepsIndx)
-            lastIndx = sepsIndx
-          # Use index list to split line into text and numbers
-          textRc = line[0:(sepsList[2]+1)]
-          Rc     = float ( (line[(sepsList[2]+1):(sepsList[3])]))
-          txtZZc = line[(sepsList[3]):]
-          line   = textRc + str(Rc) + txtZZc
+          # find element names, save values to post in Tix gui
+          if ( 'speed' in line):
+            Vc = tuplValu('speed', line)
+          #
+          if ( 'alt' in line):
+            Hc = tuplValu('alt', line)
+          #
+          if ( 'fuel' in line):
+            Kc = tuplValu('fuel', line)
+          #
+          #print ('Vc: ', Vc, ' Hc: ', Hc, ' Kc: ', Kc)  
+          if ('throttle' in line):
+            if ( 'value' in line):
+              Rc = tuplValu('value', line)
+          #
         ###
       ### wing section parse camber and induced drag elements
-      # Be Sure length, chord ... camber, idrag elements are on a single line
       if (wingFlag == 1):
-        #in wing section, find elements
-        if ('camber' in line):
-          # make an index list of double quotes in the line
-          sepsList = []
-          sepsChar = '"'
-          lastIndx = 0
-          while (lastIndx > -1):
-            sepsIndx = line.find( sepsChar, (lastIndx +1))
-            if (sepsIndx > 0) :
-              sepsList.append(sepsIndx)
-            lastIndx = sepsIndx
-          # Use index list to split line into text and numbers
-          textCw = line[0:(sepsList[8]+1)]
-          Cw     = float ( (line[(sepsList[8]+1):(sepsList[9])]))
-          textIw = line[(sepsList[9]):(sepsList[10]+1)]
-          Iw     = float(line[(sepsList[10]+1):(sepsList[11])])
-          txtZw  = line[(sepsList[11]):]
-          # overwrite line with substituted elements
-          line   = textCw + str(Cw) + textIw + str(Iw) + txtZw
-        ###
-        #in wing section, find stall elements
+        # find element names, save values to post in Tix gui
+        if ( 'camber' in line):
+          Cw =  tuplValu('camber', line)
+        #
+        if ('idrag' in line):
+          Iw = tuplValu('idrag', line)
+        #print ('Cw: ', Cw, ' Iw: ', Iw)  
+        ##
+        #in wing section, find stall element values
         if ('stall' in line):
-          # make an index list of double quotes in the line
-          sepsList = []
-          sepsChar = '"'
-          lastIndx = 0
-          while (lastIndx > -1):
-            sepsIndx = line.find( sepsChar, (lastIndx +1))
-            if (sepsIndx > 0) :
-              sepsList.append(sepsIndx)
-            lastIndx = sepsIndx
-          # Use index list to split line into text and numbers
-          textAw = line[0:(sepsList[0]+1)]
-          Aw     = float ( (line[(sepsList[0]+1):(sepsList[1])]))
-          textWw = line[(sepsList[1]):(sepsList[2]+1)]
-          Ww     = float(line[(sepsList[2]+1):(sepsList[3])])
-          textPw = line[(sepsList[3]):(sepsList[4]+1)]
-          Pw     = float(line[(sepsList[4]+1):(sepsList[5])])
-          txtZZw = line[(sepsList[5]):]
-          line   = textAw + str(Aw) + textWw + str(Ww) + textPw + str(Pw)  \
-                 + txtZZw
-        ###
-        #in wing section, find flap0 elements
+          # find element names, save values to post in Tix gui
+          if ( 'aoa' in line):
+            Aw = tuplValu('aoa', line)
+          #
+          if ( 'width' in line):
+            Ww = tuplValu('width', line)
+          #
+          if ( 'peak' in line):
+            Pw = tuplValu('peak', line)
+          #
+        #print ('Aw: ', Aw, ' Ww: ', Ww, ' Pw: ', Pw)  
+        ##
+        #in wing section, find flap0 element values 
         if ('flap0' in line):
-          # make an index list of double quotes in the line
-          sepsList = []
-          sepsChar = '"'
-          lastIndx = 0
-          while (lastIndx > -1):
-            sepsIndx = line.find( sepsChar, (lastIndx +1))
-            if (sepsIndx > 0) :
-              sepsList.append(sepsIndx)
-            lastIndx = sepsIndx
-          # Use index list to split line into text and numbers
-          textLw = line[0:(sepsList[4]+1)]
-          Lw     = float ( (line[(sepsList[4]+1):(sepsList[5])]))
-          textDw = line[(sepsList[5]):(sepsList[6]+1)]
-          Dw     = float( line[(sepsList[6]+1):(sepsList[7])])
-          txtZZZw = line[(sepsList[7]):]
-          line    = textLw + str(Lw) + textDw + str(Dw) + txtZZZw
+          # find element names, save values to post in Tix gui
+          if ( 'lift' in line):
+            Lf = tuplValu('lift', line)
+          #
+          if ( 'drag' in line):
+            Df = tuplValu('drag', line)
+          #
+        #print ('Lf: ', Lf, ' Df: ', Df)  
+        ##
+        #in wing section, find flap1 element values 
         if ('flap1' in line):
-          # make an index list of double quotes in the line
-          sepsList = []
-          sepsChar = '"'
-          lastIndx = 0
-          while (lastIndx > -1):
-            sepsIndx = line.find( sepsChar, (lastIndx +1))
-            if (sepsIndx > 0) :
-              sepsList.append(sepsIndx)
-            lastIndx = sepsIndx
-          # Use index list to split line into text and numbers
-          textLr = line[0:(sepsList[4]+1)]
-          Lr     = float ( (line[(sepsList[4]+1):(sepsList[5])]))
-          textDr = line[(sepsList[5]):(sepsList[6]+1)]
-          Dr     = float( line[(sepsList[6]+1):(sepsList[7])])
-          txtZr  = line[(sepsList[7]):]
-          line    = textLr + str(Lr) + textDr + str(Dr) + txtZr
+          # find element names, save values to post in Tix gui
+          if ( 'lift' in line):
+            Lr = tuplValu('lift', line)
+          #
+          if ( 'drag' in line):
+            Dr = tuplValu('drag', line)
+          #
+        #print ('Lr: ', Lr, ' Dr: ', Dr)  
       ### hstab section parse camber, idrag, stall and flap0 elements
       if (hstabFlag == 1):
-        ### hstab section parse camber and induced drag elements if present
-        #    If camber element is present then idrag dflt 1 must be present
-        # Be Sure length,chord...camber, idrag are in order on a single line
+        ## hstab section parse camber and induced drag elements if present
         if ('camber' in line):
-          # make an index list of double quotes in the line
-          sepsList = []
-          sepsChar = '"'
-          lastIndx = 0
-          while (lastIndx > -1):
-            sepsIndx = line.find( sepsChar, (lastIndx +1))
-            if (sepsIndx > 0) :
-              sepsList.append(sepsIndx)
-            lastIndx = sepsIndx
-          # Use index list to split line into text and numbers
-          textCh = line[0:(sepsList[8]+1)]
-          Ch     = float ( (line[(sepsList[8]+1):(sepsList[9])]))
-          textIh = line[(sepsList[9]):(sepsList[10]+1)]
-          Ih     = float(line[(sepsList[10]+1):(sepsList[11])])
-          txtZh  = line[(sepsList[11]):]
-          # overwrite line with substituted elements
-          line   = textCh + str(Ch) + textIh + str(Ih) + txtZh
+          Ch =  tuplValu('camber', line)
         else:
           # camber is not specified so deflt values to satisfy menu
           Ch = 0
+        #
+        if ('idrag' in line):
+          Ih = tuplValu('idrag', line)
+        else:
+          # camber is not specified so deflt values to satisfy menu
           Ih = 1
+        #print ('Ch: ', Ch, ' Ih: ', Ih)  
+        ##
         #in hstab section, find stall elements
         if ('stall' in line):
-          # make an index list of double quotes in the line
-          sepsList = []
-          sepsChar = '"'
-          lastIndx = 0
-          while (lastIndx > -1):
-            sepsIndx = line.find( sepsChar, (lastIndx +1))
-            if (sepsIndx > 0) :
-              sepsList.append(sepsIndx)
-            lastIndx = sepsIndx
-          # Use index list to split line into text and numbers
-          textAh = line[0:(sepsList[0]+1)]
-          Ah     = float ( (line[(sepsList[0]+1):(sepsList[1])]))
-          textWh = line[(sepsList[1]):(sepsList[2]+1)]
-          Wh     = float(line[(sepsList[2]+1):(sepsList[3])])
-          textPh = line[(sepsList[3]):(sepsList[4]+1)]
-          Ph     = float(line[(sepsList[4]+1):(sepsList[5])])
-          txtZZh = line[(sepsList[5]):]
-          line   = textAh + str(Ah) + textWh + str(Wh) + textPh + str(Ph)    \
-                 + txtZZh
+          # find element names, save values to post in Tix gui
+          if ( 'aoa' in line):
+            Ah = tuplValu('aoa', line)
+          #
+          if ( 'width' in line):
+            Wh = tuplValu('width', line)
+          #
+          if ( 'peak' in line):
+            Ph = tuplValu('peak', line)
+          #
+        #print ('Ah: ', Ah, ' Wh: ', Wh, ' Ph: ', Ph)  
+        ##
         #in hstab section, find flap0 elements
         if ('flap0' in line):
-          # make an index list of double quotes in the line
-          sepsList = []
-          sepsChar = '"'
-          lastIndx = 0
-          while (lastIndx > -1):
-            sepsIndx = line.find( sepsChar, (lastIndx +1))
-            if (sepsIndx > 0) :
-              sepsList.append(sepsIndx)
-            lastIndx = sepsIndx
-          # Use index list to split line into text and numbers
-          textLh = line[0:(sepsList[4]+1)]
-          Lh     = float ( (line[(sepsList[4]+1):(sepsList[5])]))
-          textDh = line[(sepsList[5]):(sepsList[6]+1)]
-          Dh     = float( line[(sepsList[6]+1):(sepsList[7])])
-          txtZZZh = line[(sepsList[7]):]
-          line   = textLh + str( Lh) + textDh + str(Dh) + txtZZZh
+          # find element names, save values to post in Tix gui
+          if ( 'lift' in line):
+            Lh = tuplValu('lift', line)
+          #
+          if ( 'drag' in line):
+            Dh = tuplValu('drag', line)
+          #
+        #print ('Lh: ', Lh, ' Dh: ', Dh)  
       ### vstab section parse camber, idrag, stall and flap0 elements
       if (vstabFlag == 1):
         ### vstab section parse camber and induced drag elements if present
-        #    If camber element is present then idrag dflt 1 must be present
-        # Be Sure length,chord...camber, idrag are in order on a single line
         if ('camber' in line):
-          # make an index list of double quotes in the line
-          sepsList = []
-          sepsChar = '"'
-          lastIndx = 0
-          while (lastIndx > -1):
-            sepsIndx = line.find( sepsChar, (lastIndx +1))
-            if (sepsIndx > 0) :
-              sepsList.append(sepsIndx)
-            lastIndx = sepsIndx
-          # Use index list to split line into text and numbers
-          textCv = line[0:(sepsList[8]+1)]
-          Cv     = float ( (line[(sepsList[8]+1):(sepsList[9])]))
-          textIv = line[(sepsList[9]):(sepsList[10]+1)]
-          Iv     = float(line[(sepsList[10]+1):(sepsList[11])])
-          txtZv  = line[(sepsList[11]):]
-          # overwrite line with substituted elements
-          line   = textCv + str(Cv) + textIv + str(Iv) + txtZv
+          Cv =  tuplValu('camber', line)
         else:
           # camber is not specified so deflt values to satisfy menu
           Cv = 0
+        #
+        if ('idrag' in line):
+          Iv = tuplValu('idrag', line)
+        else:
+          # camber is not specified so deflt values to satisfy menu
           Iv = 1
+        #print ('Cv: ', Cv, ' Iv: ', Iv)  
         #in vstab section, find stall elements
         if ('stall' in line):
-          # make an index list of double quotes in the line
-          sepsList = []
-          sepsChar = '"'
-          lastIndx = 0
-          while (lastIndx > -1):
-            sepsIndx = line.find( sepsChar, (lastIndx +1))
-            if (sepsIndx > 0) :
-              sepsList.append(sepsIndx)
-            lastIndx = sepsIndx
-          # Use index list to split line into text and numbers
-          textAv = line[0:(sepsList[0]+1)]
-          Av     = float ( (line[(sepsList[0]+1):(sepsList[1])]))
-          textWv = line[(sepsList[1]):(sepsList[2]+1)]
-          Wv     = float(line[(sepsList[2]+1):(sepsList[3])])
-          textPv = line[(sepsList[3]):(sepsList[4]+1)]
-          Ph     = float(line[(sepsList[4]+1):(sepsList[5])])
-          txtZZv  = line[(sepsList[5]):]
-          line   = textAv + str(Av) + textWv + str(Wv) + textPv + str(Pv)    \
-                 + txtZZv
+          # find element names, save values to post in Tix gui
+          if ( 'aoa' in line):
+            Av = tuplValu('aoa', line)
+          #
+          if ( 'width' in line):
+            Wv = tuplValu('width', line)
+          #
+          if ( 'peak' in line):
+            Pv = tuplValu('peak', line)
+          #
+        #print ('Av: ', Av, ' Wv: ', Wv, ' Pv: ', Pv)  
         #in vstab section, find flap0 elements
         if ('flap0' in line):
-          # make an index list of double quotes in the line
-          sepsList = []
-          sepsChar = '"'
-          lastIndx = 0
-          while (lastIndx > -1):
-            sepsIndx = line.find( sepsChar, (lastIndx +1))
-            if (sepsIndx > 0) :
-              sepsList.append(sepsIndx)
-            lastIndx = sepsIndx
-          # Use index list to split line into text and numbers
-          textLv = line[0:(sepsList[4]+1)]
-          Lv     = float ( (line[(sepsList[4]+1):(sepsList[5])]))
-          textDv = line[(sepsList[5]):(sepsList[6]+1)]
-          Dv     = float( line[(sepsList[6]+1):(sepsList[7])])
-          txtZZZv = line[(sepsList[7]):]
-          line   = textLv + str( Lv) + textDv + str(Dv) + txtZZZv
+          # find element names, save values to post in Tix gui
+          if ( 'lift' in line):
+            Lv = tuplValu('lift', line)
+          #
+          if ( 'drag' in line):
+            Dv = tuplValu('drag', line)
+          #
+        #print ('Lv: ', Lv, ' Dv: ', Dv)  
   #close and sync file
     ycIpHndl.flush
     os.fsync(ycIpHndl.fileno())
   ycIpHndl.close
 ##
-# After tix menu changes, create temp yasim config file with new elements
+# After tix menu changes, copy input yasim config file to output with new elements
 #
 def autoFromVbls():
   global ycIpFid, ycIpNam, ycOpFid, yDatFid
   global spc2Fid, spc3Fid, vbl2Fid, vbl3Fid
   global Va, Aa, Ka, Ra, Fa                                    # Approach  parms
   global Vc, Hc, Kc, Rc                                        # Cruise    parms 
-  global Cw, Iw, Aw, Ww, Pw, Lw, Dw, Lr, Dr                    # Wing/Ailr parms
+  global Cw, Iw, Aw, Ww, Pw, Lf, Df, Lr, Dr                    # Wing/Ailr parms
   global Ch, Ih, Ah, Wh, Ph, Lh, Dh                            # Hstab     parms
   global Cv, Iv, Av, Wv, Pv, Lv, Dv                            # Vstab     parms 
   global Sp, Rp, Ap, Pp, Wp, Mp                                # Prop      parms 
   global Hy, Vy                                                # Solver    parms
-#
-  # extracted text fields for saved parameter values 
-  global textVa, textAa, textKa, textRa, textFa
-  global textVc, textHc, textKc,  textRc
-  global textCw, textIw, textAw,  textWw, textPw, textLw, textDw, textLr, textDr  
-  global textCh, textIh, textAh,  textWh, textPh, textLh, textDh
-  global textCv, textIv, textAv,  textWv, textPv, textLv, textDv
-  global txtZa,  txtZZa, txtZZZa, txtZc,  txtZZc
-  global txtZw,  txtZZw, txtZZZw, txtZh,  txtZZh, txtZZZh
-  global txtZv,  txtZZv, txtZZZv, txtZZp, txtZZZp
-  global txtZr,  txtSp,  txtRp,   txtZp,  txtAp,  txtPp, txtWp, txtMp
 #
   apprFlag   = 0
   cruzFlag   = 0
@@ -451,27 +324,25 @@ def autoFromVbls():
   ycOpFid  = ycIpNam + '-tix.xml'
   yDatFid  = ycIpNam + '-tix.txt'
   ## # open auto yasim config file
-  ycOpHndl  = open(ycOpFid, 'w', 0)
+  ## Tix tix for python 3  ycOpHndl  = open(ycOpFid, 'w', 0)
+  ycOpHndl  = open(ycOpFid, 'w')
   # Phase 3 write auto file via yconfig template and subsVbls from Tix
   with open(ycIpFid, 'r') as ycIpHndl:
   # step each line in template yasim config file
     for line in ycIpHndl:
-      # flag on appr section
+      # set / clear flags for each section
       if '<approach' in line:
         apprFlag = 1
       if '</approach' in line:
         apprFlag = 0
-      # flag on cruise section
       if '<cruise' in line:
         cruzFlag = 1
       if '</cruise' in line:
         cruzFlag = 0
-      # flag on wing section
       if '<wing' in line:
         wingFlag = 1
       if '</wing' in line:
         wingFlag = 0
-      # flag on hstab section
       if '<hstab' in line:
         hstabFlag = 1
       if '</hstab' in line:
@@ -480,47 +351,77 @@ def autoFromVbls():
         vstabFlag = 1
       if '</vstab' in line:
         vstabFlag = 0
-      ### in each section write saved text fields and updated element values
+      ### in each section substitute updated element values
+      ## approach
       if (apprFlag == 1):
         if ('approach speed' in line):
-          line   = textVa + str(Va) + textAa + str(Aa) + textKa + str(Ka)   \
-                 + txtZa
+          line = tuplSubs( 'speed',   line, Va ) 
+          line = tuplSubs( 'aoa',     line, Aa ) 
+          line = tuplSubs( 'fuel',    line, Ka ) 
+          #print('subsLine: ', line)
         if ('throttle' in line):
-          line   = textRa + str(Ra) + txtZZa
+          line   = tuplSubs( 'value', line, Ra ) 
         if ('flaps' in line):
-          line    = textFa + str(Fa) + txtZZZa
+          line   = tuplSubs( 'value', line, Fa ) 
+      ## cruise
       if (cruzFlag == 1):
         if ('cruise speed' in line):
-          line   = textVc + str(Vc) + textHc + str(Hc) + textKc + str(Kc)   \
-                 + txtZc
+          line = tuplSubs( 'speed',   line, Vc ) 
+          line = tuplSubs( 'alt',     line, Hc ) 
+          line = tuplSubs( 'fuel',    line, Kc ) 
         if ('throttle' in line):
-          line   = textRc + str(Rc) + txtZZc
+          line   = tuplSubs( 'value', line, Rc )
+      ## wing
       if (wingFlag == 1):
         if ('camber' in line):
-          line   = textCw + str(Cw) + textIw + str(Iw) + txtZw
+          line = tuplSubs( 'camber',  line, Cw ) 
+        if ('idrag' in line):
+          line = tuplSubs( 'idrag',   line, Iw )
+        #   
         if ('stall' in line):
-          line   = textAw + str(Aw) + textWw + str(Ww) + textPw + str(Pw)  \
-                 + txtZZw
+          line = tuplSubs( 'aoa'  ,   line, Aw )
+          line = tuplSubs( 'width',   line, Ww ) 
+          line = tuplSubs( 'peak' ,   line, Pw ) 
+        #  
         if ('flap0' in line):
-          line    = textLw + str(Lw) + textDw + str(Dw) + txtZZZw
+          line = tuplSubs( 'lift',    line, Lf ) 
+          line = tuplSubs( 'drag',    line, Df ) 
+        #  
         if ('flap1' in line):
-          line    = textLr + str(Lr) + textDr + str(Dr) + txtZr
+          line = tuplSubs( 'lift',    line, Lr ) 
+          line = tuplSubs( 'drag',    line, Dr )
+        #
+      ## HStab     
       if (hstabFlag == 1):
         if ('camber' in line):
-          line   = textCh + str(Ch) + textIh + str(Ih) + txtZh
+          line = tuplSubs( 'camber',  line, Ch ) 
+        if ('idrag' in line):
+          line = tuplSubs( 'idrag',   line, Ih )
+        #
         if ('stall' in line):
-          line   = textAh + str(Ah) + textWh + str(Wh) + textPh + str(Ph)    \
-                 + txtZZh
+          line = tuplSubs( 'aoa'  ,   line, Ah ) 
+          line = tuplSubs( 'width',   line, Wh ) 
+          line = tuplSubs( 'peak' ,   line, Ph )
+        #   
         if ('flap0' in line):
-          line   = textLh + str( Lh) + textDh + str(Dh) + txtZZZh
+          line = tuplSubs( 'lift',    line, Lh ) 
+          line = tuplSubs( 'drag',    line, Dh ) 
+        # 
+      ## Vstab   
       if (vstabFlag == 1):
         if ('camber' in line):
-          line   = textCv + str(Cv) + textIv + str(Iv) + txtZv
+          line = tuplSubs( 'lift',    line, Cv ) 
+          line = tuplSubs( 'idrag',   line, Iv )
+        #
         if ('stall' in line):
-          line   = textAv + str(Av) + textWv + str(Wv) + textPv + str(Pv)    \
-                 + txtZZv
+          line = tuplSubs( 'aoa'  ,   line, Av ) 
+          line = tuplSubs( 'width',   line, Wv ) 
+          line = tuplSubs( 'peak' ,   line, Pv )
+        #   
         if ('flap0' in line):
-          line   = textLv + str( Lv) + textDv + str(Dv) + txtZZZv
+          line = tuplSubs( 'lift',    line, Lv ) 
+          line = tuplSubs( 'drag',    line, Dv ) 
+        # 
       # Write unchanged/modified line into auto.xml
       ycOpHndl.write(line)
     #close and sync files
@@ -532,46 +433,43 @@ def autoFromVbls():
   ycIpHndl.close
 
 ##
-# Call yasim data and gnuplot with auto-created config and plot spec files
+# Create individual Yasim config file for testing each desired Yasim version 
+#   Files contain 'YASIM_VERSION_XXX string to trigger various execution paths in yasim
+# Call Yasim as external process to create console output and data tables 
+# Call GNUPlot as external process to create Lift-Drag-L/D curves
+## 
 def callPlot():
   global ycIpFid, ycIpNam, ycOpFid, yDatFid
   global spc2Fid, spc3Fid, vbl2Fid, vbl3Fid
   global Va, Aa, Ka, Ra, Fa                                    # Approach  parms
   global Vc, Hc, Kc, Rc                                        # Cruise    parms 
-  global Cw, Iw, Aw, Ww, Pw, Lw, Dw, Lr, Dr                    # Wing/Ailr parms
+  global Cw, Iw, Aw, Ww, Pw, Lf, Df, Lr, Dr                    # Wing/Ailr parms
   global Ch, Ih, Ah, Wh, Ph, Lh, Dh                            # Hstab     parms
   global Cv, Iv, Av, Wv, Pv, Lv, Dv                            # Vstab     parms 
   global Sp, Rp, Ap, Pp, Wp, Mp                                # Prop      parms 
   global Hy, Vy                                                # Solver    parms
 #
-  # extracted text fields for saved parameter values 
-  global textVa, textAa, textKa, textRa, textFa
-  global textVc, textHc, textKc,  textRc
-  global textCw, textIw, textAw,  textWw, textPw, textLw, textDw, textLr, textDr  
-  global textCh, textIh, textAh,  textWh, textPh, textLh, textDh
-  global textCv, textIv, textAv,  textWv, textPv, textLv, textDv
-  global txtZa,  txtZZa, txtZZZa, txtZc,  txtZZc
-  global txtZw,  txtZZw, txtZZZw, txtZh,  txtZZh, txtZZZh
-  global txtZv,  txtZZv, txtZZZv, txtZZp, txtZZZp
-  global txtZr,  txtSp,  txtRp,   txtZp,  txtAp,  txtPp, txtWp, txtMp
-#
-    # Versions in Yasim configuration strings, OrderedDict, Be Sure vOrig Is First 
-  versDict =             OrderedDict([ ('YASIM_VERSION_ORIGINAL', 'vOrig'),   \
-                                       ('YASIM_VERSION_32', 'v32'),           \
-                                       ('YASIM_VERSION_CURRENT', 'vCurr'),    \
-                                       ('2017.2',                'v2017-2') ])
+# Versions in Yasim configuration strings, OrderedDict
+## single plot 
+  versDict =             OrderedDict([ ('YASIM_VERSION_CURRENT',  '-vCurr'), ])
+## all versions 
+##versDict =             OrderedDict([ ('YASIM_VERSION_ORIGINAL', '-vOrig'), \
+##                                     ('YASIM_VERSION_32',       '-v32'),   \
+##                                     ('YASIM_VERSION_CURRENT',  '-vCurr'), \
+##                                     ('2017.2',                 '-v2017-2') ])
   ## Iterate through each version in dictionary
   for versKywd in versDict.keys():
     versSfix = versDict[versKywd]
     vcfgFid  = ycIpNam + versSfix + '.xml'
     vdatFid  = ycIpNam +  '-dat' + versSfix + '.txt'
     ##
-    ## # open auto yasim config file
-    vcfgHndl  = open(vcfgFid, 'w', 0)
+    ## # open yasim config file, apply version string 
+    ## Tix tix for python 3      vcfgHndl  = open(vcfgFid, 'w', 0)
+    vcfgHndl  = open(vcfgFid, 'w')
     # Phase 3 write auto file via yconfig template and subsVbls from Tix
-    with open(ycIpFid, 'r') as ycIpHndl:
+    with open(ycOpFid, 'r') as ycOpHndl:
     # step each line in template yasim config file
-      for line in ycIpHndl:
+      for line in ycOpHndl:
         if '<airplane mass="' in line:
           # make an index list of double quotes in the line
           sepsList = []
@@ -585,32 +483,35 @@ def callPlot():
           # Use index list to split line into text and numbers
           lineMass = line[0:(sepsList[1]+1)]
           line = lineMass + ' version="' + versKywd + '">'
-        # Write unchanged/modified line into auto.xml
+        # Write unchanged/modified line into versioned xml 
         vcfgHndl.write(line)
-      #close and sync files
-      vcfgHndl.flush
-      os.fsync(vcfgHndl.fileno())
-      vcfgHndl.close
-      ycIpHndl.flush
-      os.fsync(ycIpHndl.fileno())
-    ycIpHndl.close
+    #close and sync files
+    vcfgHndl.flush
+    os.fsync(vcfgHndl.fileno())
+    vcfgHndl.close
+    #
+    os.sync()
+    ycOpHndl.close
     ##
-    ## auto create 2 vble gnuplot config file
-    apltHndl  = open(vbl2Fid, 'w', 0)
-    #create common annotation test parsed / menu-altered values, big version with all menu parms 
+    ## GNUPlot needs specification files: auto create 2 vble gnuplot spec file
+    ##ab apltHndl  = open(vbl2Fid, 'w', 0)
+    apltHndl  = open(vbl2Fid, 'w')
+    #create common annotation test parsed / menu-altered values, big version: all menu parms 
     commNota = ' set title "' + ycIpNam + versSfix + 'Parms:\\nAp:' + str(Va)  \
       + ' ' + str(Aa) + ' ' + str(Ka) + ' ' + str(Ra) + ' ' + str(Fa) +'\\n'   \
       + ' Cr:'  + str(Vc) + ' ' + str(Hc) + ' ' + str(Kc) + ' '                \
       + str(Rc) + '\\nWi:' + str(Cw) + ' ' + str(Iw) + ' ' + str(Aw)           \
-      + ' ' + str(Ww) + ' ' + str(Pw) + ' ' + str(Lw) + ' ' + str(Dw)          \
+      + ' ' + str(Ww) + ' ' + str(Pw) + ' ' + str(Lf) + ' ' + str(Df)          \
       + ' ' + str(Lr) + ' ' + str(Dr)                                          \
       + '\\nHs:' + str(Ch) + ' ' + str(Ih) + ' ' + str(Ah)                     \
       + ' ' + str(Wh) + ' ' + str(Ph) + ' '   + str(Lh) + ' ' + str(Dh)        \
       + '\\nVs:' + str(Cv) + ' ' + str(Iv) + ' ' + str(Av)                     \
       + ' ' + str(Wv) + ' ' + str(Pv) + ' '   + str(Lv) + ' ' + str(Dv)        \
       + 'Ys:'+ str(Vy) + ' ' + str(Hy) + '" \n'
-    # uncomment line below to have gnuplot show shortened legend 
-    commNota = ' set title "yasiVers.py ' + ycIpNam + ' ' + versSfix + ' : ' + Vy + 'kTAS at ' + Hy + 'ft" \n'
+    # uncomment a line below to have gnuplot show shortened legend 
+    #commNota = ' set title "yasiVers.py ' + ycIpNam + versSfix + ' : ' + str(Vy) + 'kTAS at ' + str(Hy) + 'ft" \n'
+    #commNota = ' set title "' + ycIpNam + ' ' + versSfix + ' : ' + str(Vy) + 'kTAS at ' + str(Hy) + 'ft" \n'
+    commNota = ' set title "'+ycIpNam+versSfix+'  VApp:'+str(Va) + ' VCrz:'+str(Vc)+' Aw:'+str(Aw)+' Ww:'+str(Ww)+'" \n'
     with open(spc2Fid, 'r') as tplt:
       plotFlag = 0
       for line in tplt:
@@ -623,17 +524,21 @@ def callPlot():
           # Write line into auto.xml
           apltHndl.write(line)
       # At EOF append plot lines with proper data file name
+#     line = ' plot "' + vdatFid +'" every ::2        using '            \
+#          + '1:2 with lines title \'lift\', \\\n'
+#     apltHndl.write(line)
+#     line = '      "' + vdatFid +'" every ::2        using '            \
+#          + '1:3 with lines title \'drag\''
+#     apltHndl.write(line)
+### ab 2020Jan23  L/D only 
       line = ' plot "' + vdatFid +'" every ::2        using '            \
-           + '1:2 with lines title \'lift\', \\\n'
-      apltHndl.write(line)
-      line = '      "' + vdatFid +'" every ::2        using '            \
-           + '1:3 with lines title \'drag\''
+           + '1:4 with lines title \'LvsD\''
       apltHndl.write(line)
       apltHndl.close
       tplt.close
     #
     ## auto create 3 vble gnuplot config file
-    apltHndl  = open(vbl3Fid, 'w', 0)
+    apltHndl  = open(vbl3Fid, 'w')
     with open(spc3Fid, 'r') as tplt:
       plotFlag = 0
       for line in tplt:
@@ -656,7 +561,10 @@ def callPlot():
       apltHndl.write(line)
       apltHndl.close
       tplt.close
-    ####
+    ## python3 Need to open/close file to flush it ?
+    vcfgHndl  = open(vcfgFid, 'r')
+    vcfgHndl.close()
+    ##    
     # run yasim external process to show console output
     command_line = 'yasim ' + vcfgFid + ' -a ' + str(Hy) + ' -s ' + str(Vy)
     args = shlex.split(command_line)
@@ -680,16 +588,21 @@ def callPlot():
     p = subprocess.Popen(args, stdout=vDatHndl)
     vDatHndl.close
     p.wait()
-    #
+    ##
+    ## Uncomment for separate Lift, Drag curves 
     # run gnuplot with 2 vble command file to plot dataset
-    command_line = "gnuplot -p " + vbl2Fid
-    args = shlex.split(command_line)
-    DEVNULL = open(os.devnull, 'wb')
-    p = subprocess.Popen(args, stdout=DEVNULL, stderr=DEVNULL)
-    p.communicate()
-    DEVNULL.close()
+    #apltHndl  = open(vbl2Fid, 'w')
+    #apltHndl.close()
+    #command_line = "gnuplot -p " + vbl2Fid
+    #args = shlex.split(command_line)
+    #DEVNULL = open(os.devnull, 'wb')
+    #p = subprocess.Popen(args, stdout=DEVNULL, stderr=DEVNULL)
+    #p.communicate()
+    #DEVNULL.close()
     #
     # run gnuplot with 3 vble command file to plot dataset
+    apltHndl  = open(vbl3Fid, 'w')
+    apltHndl.close()
     command_line = "gnuplot -p " + vbl3Fid
     args = shlex.split(command_line)
     DEVNULL = open(os.devnull, 'wb')
@@ -705,19 +618,21 @@ def callPlot():
 class PropertyField:
   def __init__(self, parent, prop, label):
     self.prop = prop
-    self.field = Tix.LabelEntry( parent, label=label,
+    ## Tix tix for python 3  self.field = Tix.LabelEntry( parent, label=label,
+    self.field = tix.LabelEntry( parent, label=label,
        options='''
        label.width 12
        label.anchor e
        entry.width 12
        ''' )
-    self.field.pack( side=Tix.TOP, padx=8, pady=2 )
+    ## Tix tix for python 3  self.field.pack( side=Tix.TOP, padx=8, pady=2 )
+    self.field.pack( side=tix.TOP, padx=8, pady=2 )
 
   # Pull numeric vals from menu entries and store into variables
   def eval_field(self):
     global Va, Aa, Ka, Ra, Fa                                    # Approach  parms
     global Vc, Hc, Kc, Rc                                        # Cruise    parms 
-    global Cw, Iw, Aw, Ww, Pw, Lw, Dw, Lr, Dr                    # Wing/Ailr parms
+    global Cw, Iw, Aw, Ww, Pw, Lf, Df, Lr, Dr                    # Wing/Ailr parms
     global Ch, Ih, Ah, Wh, Ph, Lh, Dh                            # Hstab     parms
     global Cv, Iv, Av, Wv, Pv, Lv, Dv                            # Vstab     parms 
     global Sp, Rp, Ap, Pp, Wp, Mp                                # Prop      parms 
@@ -743,8 +658,8 @@ class PropertyField:
     if 'WingStAoA'  in lbl: Aw = val
     if 'WingStWid'  in lbl: Ww = val
     if 'WingStlPk'  in lbl: Pw = val
-    if 'WFlapLift'  in lbl: Lw = val
-    if 'WFlapDrag'  in lbl: Dw = val
+    if 'WFlapLift'  in lbl: Lf = val
+    if 'WFlapDrag'  in lbl: Df = val
     if 'AilrnLift'  in lbl: Lr = val
     if 'AilrnDrag'  in lbl: Dr = val
     if 'HstbCambr'  in lbl: Ch = val
@@ -767,11 +682,14 @@ class PropertyField:
     self.field.entry.delete(0,'end')
     self.field.entry.insert(0, val)
 
-class PropertyPage(Tix.Frame):
+## Tix tix for python 3  class PropertyPage(Tix.Frame):
+class PropertyPage(tix.Frame):
   def __init__(self,parent):
-    Tix.Frame.__init__(self,parent)
+    ## Tix tix for python 3  Tix.Frame.__init__(self,parent)
+    tix.Frame.__init__(self,parent)
     #self.fgfs = fgfs
-    self.pack( side=Tix.TOP, padx=2, pady=2, fill=Tix.BOTH, expand=1 )
+    ## Tix tix for python 3  self.pack( side=Tix.TOP, padx=2, pady=2, fill=Tix.BOTH, expand=1 )
+    self.pack( side=tix.TOP, padx=2, pady=2, fill=tix.BOTH, expand=1 )
     self.fields = []
 
   def addField(self, prop, label):
@@ -786,11 +704,14 @@ class PropertyPage(Tix.Frame):
     for f in self.fields:
       #f.update_field(self.fgfs)
       f.update_field()
-      Tix.Frame.update(self)
+      ## Tix tix for python 3  Tix.Frame.update(self)
+      tix.Frame.update(self)
 
-class ycTix(Tix.Frame):
+## Tix tix for python 3   class ycTix(Tix.Frame):
+class ycTix(tix.Frame):
   def __init__(self,root=None):
-    Tix.Frame.__init__(self,root)
+    ## Tix tix for python 3  Tix.Frame.__init__(self,root)
+    tix.Frame.__init__(self,root)
     z = root.winfo_toplevel()
     z.wm_protocol("WM_DELETE_WINDOW", lambda self=self: self.quitcmd())
     #self.fgfs = fgfs
@@ -801,7 +722,8 @@ class ycTix(Tix.Frame):
     self.update()
 
   def createWidgets(self):
-    self.nb = Tix.NoteBook(self)
+    ## Tix tix for python 3  self.nb = Tix.NoteBook(self)
+    self.nb = tix.NoteBook(self)
     self.nb.add( 'appr', label='APPR',
            raisecmd= lambda self=self: self.update_page() )
     self.nb.add( 'cruz', label='CRUISE',
@@ -837,8 +759,8 @@ class ycTix(Tix.Frame):
     page.addField( Aw,    'WingStAoA:')
     page.addField( Ww,    'WingStWid:')
     page.addField( Pw,    'WingStlPk:')
-    page.addField( Lw,    'WFlapLift:')
-    page.addField( Dw,    'WFlapDrag:')
+    page.addField( Lf,    'WFlapLift:')
+    page.addField( Df,    'WFlapDrag:')
     page.addField( Lr,    'AilrnLift:')
     page.addField( Dr,    'AilrnDrag:')
     #
@@ -862,14 +784,17 @@ class ycTix(Tix.Frame):
     page.addField( Lv,    'VFlapLift:')
     page.addField( Dv,    'VFlapDrag:')
     #
-    self.nb.pack( expand=1, fill=Tix.BOTH, padx=5, pady=5, side=Tix.TOP )
+    ## Tix tix for python 3  self.nb.pack( expand=1, fill=Tix.BOTH, padx=5, pady=5, side=Tix.TOP )
+    self.nb.pack( expand=1, fill=tix.BOTH, padx=5, pady=5, side=tix.TOP )
 
-    self.QUIT = Tix.Button(self)
+    ## Tix tix for python 3  self.QUIT = Tix.Button(self)
+    self.QUIT = tix.Button(self)
     self.QUIT['text'] = 'Quit'
     self.QUIT['command'] = self.quitCmd
     self.QUIT.pack({"side": "right"})
 
-    self.PLOT = Tix.Button(self)
+    ## Tix tix for python 3  self.PLOT = Tix.Button(self)
+    self.PLOT = tix.Button(self)
     self.PLOT['text'] = 'Plot'
     self.PLOT['command'] = self.plotCmd
     self.PLOT.pack({"side": "left"})
@@ -898,7 +823,8 @@ class ycTix(Tix.Frame):
 #
 def main():
   normArgs(sys.argv[1:])
-  root = Tix.Tk()
+  ## Tix tix for python 3  root = Tix.Tk()
+  root = tix.Tk()
   vblsFromTplt()
   app = ycTix( root )
   app.mainloop()
