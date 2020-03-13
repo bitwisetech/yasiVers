@@ -17,16 +17,15 @@
     engine           : 1 Pratt & Whitney R-1340-AN-1 Wasp radial engine ( 600 hp )
 -->
 <airplane mass="4158" version="YASIM_VERSION_CURRENT" mtow-lbs="5617">
-
-  <approach speed="75" aoa="4" fuel="0.2">
-    <control-setting axis="/controls/engines/engine[0]/throttle"        value="0.2"/>
+  <approach speed="75" aoa="3" fuel="0.2">
+    <control-setting axis="/controls/engines/engine[0]/throttle"        value="0.3"/>
     <control-setting axis="/controls/engines/engine[0]/mixture"         value="1"/>
-    <control-setting axis="/controls/engines/engine[0]/propeller-pitch" value="1"/>
-    <control-setting axis="/controls/flight/flaps"   value="1"/>
+    <control-setting axis="/controls/engines/engine[0]/propeller-pitch" value="0.7"/>
+    <control-setting axis="/controls/flight/flaps"   value="0.667"/>
     <control-setting axis="/controls/gear/gear-down" value="1"/>
   </approach>
 
-  <cruise speed="130" alt="3000" fuel="0.7">
+  <cruise speed="130.0" alt="3000.0" fuel="0.7">
     <control-setting axis="/controls/engines/engine[0]/throttle"        value="0.8"/>
     <control-setting axis="/controls/engines/engine[0]/mixture"         value="0.95"/>
     <control-setting axis="/controls/engines/engine[0]/propeller-pitch" value="0.6"/>
@@ -58,11 +57,11 @@
         taper="0.5" 
         dihedral="3"
         sweep="3.5"
-        camber="0.200001">
-        idrag="1.000">
-        <stall aoa="16" width="4" peak="1.5"/>
+        camber="0.3">
+        idrag="1.0">
+        <stall aoa="16.0" width="1.0" peak="1.5"/>
         <flap0 start="0.00" end="0.57" lift="1.5" drag="1.2"/>
-        <flap1 start="0.57" end="1.00" lift="1.4" drag="1.2"/>
+        <flap1 start="0.57" end="1.00" lift="1.80014" drag="1.00112"/>
 
         <control-input  control="FLAP0" axis="/controls/flight/flaps"/>
         <control-input  control="FLAP1" axis="/controls/flight/aileron" split="true"/>
@@ -78,8 +77,8 @@
          length="1.979" 
          taper="0.58"
          sweep="10">
-         <stall aoa="18" width="1" peak="1.5"/>
-         <flap0 start="0" end="1" lift="1.2" drag="1.1"/>
+         <stall aoa="18.0" width="1.0" peak="1.5"/>
+         <flap0 start="0" end="1" lift="1.60012" drag="1.1"/>
 
          <control-input  control="FLAP0" axis="/controls/flight/elevator"/>
          <control-input  control="FLAP0" axis="/controls/flight/elevator-trim"/>
@@ -92,8 +91,8 @@
          length="1.856" 
          taper="0.30"
          sweep="10">
-         <stall aoa="16" width="1" peak="1.5"/>
-         <flap0 start="0" end="1" lift="1.3" drag="1.1"/>
+         <stall aoa="15.0" width="4.0" peak="1.5"/>
+         <flap0 start="0" end="1" lift="1.70013" drag="1.1"/>
 
          <control-input  control="FLAP0" axis="/controls/flight/rudder"      invert="true"/>
          <control-input  control="FLAP0" axis="/controls/flight/rudder-trim" invert="true"/>

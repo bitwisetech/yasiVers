@@ -5,6 +5,19 @@
 #    gnuplots are Lift + Drag and Lift + Drag + LvsD for each yasim version 
 ## Tix tix for python 3  import getopt, os, shlex, subprocess, sys, Tix
 import getopt, os, shlex, subprocess, sys
+
+##
+#  Python Version
+global pythVers
+pythVers = sys.version_info[0]
+#print('pythVers:', pythVers)
+if (pythVers < 3):
+  import Tix
+  import Tkinter as tk
+else:  
+  import tkinter as tk
+  from tkinter import tix
+from collections import OrderedDict 
 import tkinter as tk
 from tkinter import tix
 from collections import OrderedDict 
@@ -324,8 +337,11 @@ def autoFromVbls():
   ycOpFid  = ycIpNam + '-tix.xml'
   yDatFid  = ycIpNam + '-tix.txt'
   ## # open auto yasim config file
-  ## Tix tix for python 3  ycOpHndl  = open(ycOpFid, 'w', 0)
-  ycOpHndl  = open(ycOpFid, 'w')
+  ## Tix tix for python 3
+  if ( pythVers < 3 ) :
+    ycOpHndl  = open(ycOpFid, 'w', 0)
+  else :
+    ycOpHndl  = open(ycOpFid, 'w')
   # Phase 3 write auto file via yconfig template and subsVbls from Tix
   with open(ycIpFid, 'r') as ycIpHndl:
   # step each line in template yasim config file
@@ -464,8 +480,11 @@ def callPlot():
     vdatFid  = ycIpNam +  '-dat' + versSfix + '.txt'
     ##
     ## # open yasim config file, apply version string 
-    ## Tix tix for python 3      vcfgHndl  = open(vcfgFid, 'w', 0)
-    vcfgHndl  = open(vcfgFid, 'w')
+    ## Tix tix for python 3
+    if (pythVers < 3):
+      vcfgHndl  = open(vcfgFid, 'w', 0)
+    else :
+      vcfgHndl  = open(vcfgFid, 'w')
     # Phase 3 write auto file via yconfig template and subsVbls from Tix
     with open(ycOpFid, 'r') as ycOpHndl:
     # step each line in template yasim config file
@@ -511,7 +530,7 @@ def callPlot():
     # uncomment a line below to have gnuplot show shortened legend 
     #commNota = ' set title "yasiVers.py ' + ycIpNam + versSfix + ' : ' + str(Vy) + 'kTAS at ' + str(Hy) + 'ft" \n'
     #commNota = ' set title "' + ycIpNam + ' ' + versSfix + ' : ' + str(Vy) + 'kTAS at ' + str(Hy) + 'ft" \n'
-    commNota = ' set title "'+ycIpNam+versSfix+'  VApp:'+str(Va) + ' VCrz:'+str(Vc)+' Aw:'+str(Aw)+' Ww:'+str(Ww)+'" \n'
+    commNota = ' set title "'+ycIpNam+versSfix+' Va:'+str(Va)+' Aa:'+str(Aa) + ' Vc:'+str(Vc)+' Cw:'+str(Cw)+' Aw:'+str(Aw)+' Ww:'+str(Ww)+'"\n'
     with open(spc2Fid, 'r') as tplt:
       plotFlag = 0
       for line in tplt:
@@ -618,16 +637,26 @@ def callPlot():
 class PropertyField:
   def __init__(self, parent, prop, label):
     self.prop = prop
-    ## Tix tix for python 3  self.field = Tix.LabelEntry( parent, label=label,
-    self.field = tix.LabelEntry( parent, label=label,
-       options='''
-       label.width 12
-       label.anchor e
-       entry.width 12
-       ''' )
-    ## Tix tix for python 3  self.field.pack( side=Tix.TOP, padx=8, pady=2 )
-    self.field.pack( side=tix.TOP, padx=8, pady=2 )
-
+    ## Tix tix for python 3
+    if (pythVers < 3):
+      self.field = Tix.LabelEntry( parent, label=label,
+        options='''
+        label.width 12
+        label.anchor e
+        entry.width 12
+        ''' )
+    else :  
+      self.field = tix.LabelEntry( parent, label=label,
+        options='''
+        label.width 12
+        label.anchor e
+        entry.width 12
+        ''' )
+    ## Tix tix for python 3
+    if (pythVers < 3):
+      self.field.pack( side=Tix.TOP, padx=8, pady=2 )    
+    else :
+      self.field.pack( side=tix.TOP, padx=8, pady=2 )
   # Pull numeric vals from menu entries and store into variables
   def eval_field(self):
     global Va, Aa, Ka, Ra, Fa                                    # Approach  parms
@@ -682,14 +711,18 @@ class PropertyField:
     self.field.entry.delete(0,'end')
     self.field.entry.insert(0, val)
 
-## Tix tix for python 3  class PropertyPage(Tix.Frame):
+## Tix tix for python 3
 class PropertyPage(tix.Frame):
+  ## class PropertyPage(Tix.Frame):
   def __init__(self,parent):
-    ## Tix tix for python 3  Tix.Frame.__init__(self,parent)
-    tix.Frame.__init__(self,parent)
-    #self.fgfs = fgfs
-    ## Tix tix for python 3  self.pack( side=Tix.TOP, padx=2, pady=2, fill=Tix.BOTH, expand=1 )
-    self.pack( side=tix.TOP, padx=2, pady=2, fill=tix.BOTH, expand=1 )
+    ## Tix tix for python 3
+    if (pythVers < 3):
+      Tix.Frame.__init__(self,parent)
+      self.pack( side=Tix.TOP, padx=2, pady=2, fill=Tix.BOTH, expand=1 )
+    else :  
+      tix.Frame.__init__(self,parent)
+      self.pack( side=tix.TOP, padx=2, pady=2, fill=tix.BOTH, expand=1 )
+    ## Tix tix for python 3
     self.fields = []
 
   def addField(self, prop, label):
@@ -704,14 +737,20 @@ class PropertyPage(tix.Frame):
     for f in self.fields:
       #f.update_field(self.fgfs)
       f.update_field()
-      ## Tix tix for python 3  Tix.Frame.update(self)
-      tix.Frame.update(self)
+      ## Tix tix for python 3
+      if (pythVers < 3):
+        Tix.Frame.update(self)
+      else :  
+        tix.Frame.update(self)
 
 ## Tix tix for python 3   class ycTix(Tix.Frame):
 class ycTix(tix.Frame):
   def __init__(self,root=None):
-    ## Tix tix for python 3  Tix.Frame.__init__(self,root)
-    tix.Frame.__init__(self,root)
+    ## Tix tix for python 3
+    if (pythVers < 3):
+      Tix.Frame.__init__(self,root)
+    else :  
+      tix.Frame.__init__(self,root)
     z = root.winfo_toplevel()
     z.wm_protocol("WM_DELETE_WINDOW", lambda self=self: self.quitcmd())
     #self.fgfs = fgfs
@@ -722,8 +761,11 @@ class ycTix(tix.Frame):
     self.update()
 
   def createWidgets(self):
-    ## Tix tix for python 3  self.nb = Tix.NoteBook(self)
-    self.nb = tix.NoteBook(self)
+    ## Tix tix for python 3
+    if (pythVers < 3):
+      self.nb = Tix.NoteBook(self)
+    else :  
+      self.nb = tix.NoteBook(self)
     self.nb.add( 'appr', label='APPR',
            raisecmd= lambda self=self: self.update_page() )
     self.nb.add( 'cruz', label='CRUISE',
@@ -784,17 +826,26 @@ class ycTix(tix.Frame):
     page.addField( Lv,    'VFlapLift:')
     page.addField( Dv,    'VFlapDrag:')
     #
-    ## Tix tix for python 3  self.nb.pack( expand=1, fill=Tix.BOTH, padx=5, pady=5, side=Tix.TOP )
-    self.nb.pack( expand=1, fill=tix.BOTH, padx=5, pady=5, side=tix.TOP )
+    ## Tix tix for python 3
+    if (pythVers < 3):
+      self.nb.pack( expand=1, fill=Tix.BOTH, padx=5, pady=5, side=Tix.TOP )
+    else :  
+      self.nb.pack( expand=1, fill=tix.BOTH, padx=5, pady=5, side=tix.TOP )
 
-    ## Tix tix for python 3  self.QUIT = Tix.Button(self)
-    self.QUIT = tix.Button(self)
+    ## Tix tix for python 3
+    if (pythVers < 3):
+      self.QUIT = Tix.Button(self)
+    else :  
+      self.QUIT = tix.Button(self)
     self.QUIT['text'] = 'Quit'
     self.QUIT['command'] = self.quitCmd
     self.QUIT.pack({"side": "right"})
 
-    ## Tix tix for python 3  self.PLOT = Tix.Button(self)
-    self.PLOT = tix.Button(self)
+    ## Tix tix for python 3
+    if (pythVers < 3):
+      self.PLOT = Tix.Button(self)
+    else :  
+      self.PLOT = tix.Button(self)
     self.PLOT['text'] = 'Plot'
     self.PLOT['command'] = self.plotCmd
     self.PLOT.pack({"side": "left"})
@@ -823,8 +874,11 @@ class ycTix(tix.Frame):
 #
 def main():
   normArgs(sys.argv[1:])
-  ## Tix tix for python 3  root = Tix.Tk()
-  root = tix.Tk()
+  ## Tix tix for python 3
+  if ( pythVers < 3 ) :
+    root = Tix.Tk()  
+  else :
+    root = tix.Tk()
   vblsFromTplt()
   app = ycTix( root )
   app.mainloop()
