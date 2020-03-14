@@ -35,8 +35,8 @@ def normArgs(argv):
   global ycOpFid
   ycOpFid   = 'ytixOutp.xml'
   # Tabulated yasim data using Tix Menu modified elements for GNU Plot 
-  global yDatFid
-  yDatFid   = "ytixData.txt"
+  ###ab smite global yDatFid
+  ###ab smite yDatFid   = "ytixData.txt"
   # Template gnuplot spec files for 2, 3 variables plot
   global spc2Fid
   #spc2Fid   = '2argTplt.p'
@@ -85,7 +85,7 @@ def tuplSubs( tName, tText, tValu ):
 # Scan original Yyasim config and extract numeric elements, save for tix menu
 #
 def vblsFromTplt():
-  global ycIpFid, ycIpNam, ycOpFid, yDatFid
+  global ycIpFid, ycIpNam, ycOpFid
   global spc2Fid, spc3Fid, vbl2Fid, vbl3Fid
   ## These vbles correspond to the elements in the config file: 
   global Va, Aa, Ka, Ra, Fa                                    # Approach  parms
@@ -93,7 +93,7 @@ def vblsFromTplt():
   global Cw, Iw, Aw, Ww, Pw, Lf, Df, Lr, Dr                    # Wing/Ailr parms
   global Ch, Ih, Ah, Wh, Ph, Lh, Dh                            # Hstab     parms
   global Cv, Iv, Av, Wv, Pv, Lv, Dv                            # Vstab     parms 
-  global Sp, Rp, Ap, Pp, Wp, Mp                                # Prop      parms 
+  global Mp, Rp, Ap, Np, Xp, Ip, Op, Vp, Cp, Tp                # Prop      parms 
   global Hy, Vy                                                # Solver    parms
 #
   # These flags indicate parsing has detected various sections of yasim config 
@@ -145,6 +145,11 @@ def vblsFromTplt():
         vstabFlag = 1
       if '</vstab' in line:
         vstabFlag = 0
+      # flag on prop section
+      if '<propeller' in line:
+        propFlag = 1
+      if '</propeller' in line:
+        propFlag = 0
       ### appr section parse approach speed and AoA elements
       if (apprFlag == 1):
         ##
@@ -310,7 +315,42 @@ def vblsFromTplt():
           if ( 'drag' in line):
             Dv = tuplValu('drag', line)
           #
-        #print ('Lv: ', Lv, ' Dv: ', Dv)  
+        #print ('Lv: ', Lv, ' Dv: ', Dv)
+      ###
+      #prop 
+      if (propFlag == 1):
+        ## prop section parse elements if present
+        if ('mass' in line):
+          Mp =  tuplValu('mass', line)
+        #
+        if ('radius' in line):
+          Rp =  tuplValu('radius', line)
+        #
+        if ('moment' in line):
+          Ap =  tuplValu('moment', line)
+        #
+        if ('min-rpm' in line):
+          Np =  tuplValu('min-rpm', line)
+        #
+        if ('max-rpm' in line):
+          Xp =  tuplValu('max-rpm', line)
+        #
+        if ('fine-stop' in line):
+          Ip =  tuplValu('fine-stop', line)
+        #
+        if ('coarse-stop' in line):
+          Op =  tuplValu('coarse-stop', line)
+        #
+        if ('cruise-speed' in line):
+          Vp =  tuplValu('cruise-speed', line)
+        #
+        if ('cruise-rpm' in line):
+          Cp =  tuplValu('cruise-rpm', line)
+        #
+        if ('takeoff-rpm' in line):
+          Tp =  tuplValu('takeoff-rpm', line)
+        #
+        ###  
   #close and sync file
     ycIpHndl.flush
     os.fsync(ycIpHndl.fileno())
@@ -319,14 +359,14 @@ def vblsFromTplt():
 # After tix menu changes, copy input yasim config file to output with new elements
 #
 def autoFromVbls():
-  global ycIpFid, ycIpNam, ycOpFid, yDatFid
+  global ycIpFid, ycIpNam, ycOpFid
   global spc2Fid, spc3Fid, vbl2Fid, vbl3Fid
   global Va, Aa, Ka, Ra, Fa                                    # Approach  parms
   global Vc, Hc, Kc, Rc                                        # Cruise    parms 
   global Cw, Iw, Aw, Ww, Pw, Lf, Df, Lr, Dr                    # Wing/Ailr parms
   global Ch, Ih, Ah, Wh, Ph, Lh, Dh                            # Hstab     parms
   global Cv, Iv, Av, Wv, Pv, Lv, Dv                            # Vstab     parms 
-  global Sp, Rp, Ap, Pp, Wp, Mp                                # Prop      parms 
+  global Mp, Rp, Ap, Np, Xp, Ip, Op, Vp, Cp, Tp                # Prop      parms 
   global Hy, Vy                                                # Solver    parms
 #
   apprFlag   = 0
@@ -334,8 +374,9 @@ def autoFromVbls():
   wingFlag   = 0
   hstabFlag  = 0
   vstabFlag  = 0
+  propFlag   = 0
   ycOpFid  = ycIpNam + '-tix.xml'
-  yDatFid  = ycIpNam + '-tix.txt'
+  ###ab smite yDatFid  = ycIpNam + '-tix.txt'
   ## # open auto yasim config file
   ## Tix tix for python 3
   if ( pythVers < 3 ) :
@@ -347,26 +388,30 @@ def autoFromVbls():
   # step each line in template yasim config file
     for line in ycIpHndl:
       # set / clear flags for each section
-      if '<approach' in line:
+      if '<approach'  in line:
         apprFlag = 1
       if '</approach' in line:
         apprFlag = 0
-      if '<cruise' in line:
+      if '<cruise'    in line:
         cruzFlag = 1
-      if '</cruise' in line:
+      if '</cruise'   in line:
         cruzFlag = 0
-      if '<wing' in line:
+      if '<wing'      in line:
         wingFlag = 1
-      if '</wing' in line:
+      if '</wing'     in line:
         wingFlag = 0
-      if '<hstab' in line:
+      if '<hstab'     in line:
         hstabFlag = 1
-      if '</hstab' in line:
+      if '</hstab'    in line:
         hstabFlag = 0
-      if '<vstab' in line:
+      if '<vstab'     in line:
         vstabFlag = 1
-      if '</vstab' in line:
+      if '</vstab'    in line:
         vstabFlag = 0
+      if '<propeller' in line:
+        propFlag = 1
+      if '</propeller'in line:
+        propFlag = 0
       ### in each section substitute updated element values
       ## approach
       if (apprFlag == 1):
@@ -438,6 +483,41 @@ def autoFromVbls():
           line = tuplSubs( 'lift',    line, Lv ) 
           line = tuplSubs( 'drag',    line, Dv ) 
         # 
+      ###
+      #prop 
+      if (propFlag == 1):
+        ## prop section parse elements if present
+        if ('mass' in line):
+          line = tuplSubs( 'mass',    line, Mp ) 
+        #
+        if ('radius' in line):
+          line = tuplSubs( 'radius',    line, Rp ) 
+        #
+        if ('moment' in line):
+          line = tuplSubs( 'moment',    line, Ap ) 
+        #
+        if ('min-rpm' in line):
+          line = tuplSubs( 'min-rpm',    line, Np ) 
+        #
+        if ('max-rpm' in line):
+          line = tuplSubs( 'max-rpm',    line, Xp ) 
+        #
+        if ('fine-stop' in line):
+          line = tuplSubs( 'fine-stop',    line, Ip ) 
+        #
+        if ('coarse-stop' in line):
+          line = tuplSubs( 'coarse-stop',    line, Op ) 
+        #
+        if ('cruise-speed' in line):
+          line = tuplSubs( 'cruise-speed',    line, Vp ) 
+        #
+        if ('cruise-rpm' in line):
+          line = tuplSubs( 'cruise-rpm',    line, Cp ) 
+        #
+        if ('takeoff-rpm' in line):
+          line = tuplSubs( 'takeoff-rpm',    line, Tp ) 
+        #
+        #
       # Write unchanged/modified line into auto.xml
       ycOpHndl.write(line)
     #close and sync files
@@ -455,14 +535,14 @@ def autoFromVbls():
 # Call GNUPlot as external process to create Lift-Drag-L/D curves
 ## 
 def callPlot():
-  global ycIpFid, ycIpNam, ycOpFid, yDatFid
+  global ycIpFid, ycIpNam, ycOpFid
   global spc2Fid, spc3Fid, vbl2Fid, vbl3Fid
   global Va, Aa, Ka, Ra, Fa                                    # Approach  parms
   global Vc, Hc, Kc, Rc                                        # Cruise    parms 
   global Cw, Iw, Aw, Ww, Pw, Lf, Df, Lr, Dr                    # Wing/Ailr parms
   global Ch, Ih, Ah, Wh, Ph, Lh, Dh                            # Hstab     parms
   global Cv, Iv, Av, Wv, Pv, Lv, Dv                            # Vstab     parms 
-  global Sp, Rp, Ap, Pp, Wp, Mp                                # Prop      parms 
+  global Mp, Rp, Ap, Np, Xp, Ip, Op, Vp, Cp, Tp                # Prop      parms 
   global Hy, Vy                                                # Solver    parms
 #
 # Versions in Yasim configuration strings, OrderedDict
@@ -499,9 +579,19 @@ def callPlot():
             if (sepsIndx > 0) :
               sepsList.append(sepsIndx)
             lastIndx = sepsIndx
-          # Use index list to split line into text and numbers
-          lineMass = line[0:(sepsList[1]+1)]
-          line = lineMass + ' version="' + versKywd + '">'
+          #
+          if ('version=' in line ):
+            linePart = line[:line.find('version=')]  
+            sepsIndx = line.find('version=')
+            sepsIndx = line.find('"', (sepsIndx+1))
+            sepsIndx = line.find('"', (sepsIndx+1))
+            linePart = linePart + ' version="' + versKywd + ' '
+            linePart = linePart + line[sepsIndx:]
+            line = linePart
+          else :  
+            # Use index list to split line into text and numbers
+            lineMass = line[0:(sepsList[1]+1)]
+            line = lineMass + ' version="' + versKywd + '">'
         # Write unchanged/modified line into versioned xml 
         vcfgHndl.write(line)
     #close and sync files
@@ -592,12 +682,12 @@ def callPlot():
     p.wait()
     #
     # run yasim external process for auto dataset, name used in .p spec
-    yDatHndl = open(yDatFid, 'w')
-    command_line = 'yasim ' + vcfgFid + ' -g -a ' + str(Hy) + ' -s ' + str(Vy)
-    args = shlex.split(command_line)
-    p = subprocess.Popen(args, stdout=yDatHndl)
-    yDatHndl.close
-    p.wait()
+    ###ab smite yDatHndl = open(yDatFid, 'w')
+    ###ab smite command_line = 'yasim ' + vcfgFid + ' -g -a ' + str(Hy) + ' -s ' + str(Vy)
+    ###ab smite args = shlex.split(command_line)
+    ###ab smite p = subprocess.Popen(args, stdout=yDatHndl)
+    ###ab smite yDatHndl.close
+    ###ab smite p.wait()
     #
     ##
     # run yasim external process for saved dataset file
@@ -664,7 +754,7 @@ class PropertyField:
     global Cw, Iw, Aw, Ww, Pw, Lf, Df, Lr, Dr                    # Wing/Ailr parms
     global Ch, Ih, Ah, Wh, Ph, Lh, Dh                            # Hstab     parms
     global Cv, Iv, Av, Wv, Pv, Lv, Dv                            # Vstab     parms 
-    global Sp, Rp, Ap, Pp, Wp, Mp                                # Prop      parms 
+    global Mp, Rp, Ap, Np, Xp, Ip, Op, Vp, Cp, Tp                # Prop      parms 
     global Hy, Vy                                                # Solver    parms
     #
     #
@@ -705,6 +795,16 @@ class PropertyField:
     if 'VstbStlPk'  in lbl: Ph = val
     if 'VFlapLift'  in lbl: Lh = val
     if 'VFlapDrag'  in lbl: Dh = val
+    if 'PropMass'   in lbl: Mp = val
+    if 'PropRadi'   in lbl: Rp = val
+    if 'PropMomt'   in lbl: Ap = val
+    if 'PropMinR'   in lbl: Np = val
+    if 'PropMaxR'   in lbl: Xp = val
+    if 'PropFine'   in lbl: Ip = val
+    if 'PropCoar'   in lbl: Op = val
+    if 'PropCSpd'   in lbl: Vp = val
+    if 'PropCRpm'   in lbl: Cp = val
+    if 'PropTRpm'   in lbl: Tp = val
 
   def update_field(self):
     val = self.prop
@@ -768,13 +868,15 @@ class ycTix(tix.Frame):
       self.nb = tix.NoteBook(self)
     self.nb.add( 'appr', label='APPR',
            raisecmd= lambda self=self: self.update_page() )
-    self.nb.add( 'cruz', label='CRUISE',
+    self.nb.add( 'cruz', label='CRSE',
            raisecmd= lambda self=self: self.update_page() )
     self.nb.add( 'wing', label='WING',
            raisecmd= lambda self=self: self.update_page() )
-    self.nb.add( 'hstb', label='HSTAB',
+    self.nb.add( 'hstb', label='HSTB',
            raisecmd= lambda self=self: self.update_page() )
-    self.nb.add( 'vstb', label='VSTAB',
+    self.nb.add( 'vstb', label='VSTB',
+           raisecmd= lambda self=self: self.update_page() )
+    self.nb.add( 'prop', label='PROP',
            raisecmd= lambda self=self: self.update_page() )
     #
     page = PropertyPage( self.nb.appr )
@@ -826,6 +928,19 @@ class ycTix(tix.Frame):
     page.addField( Lv,    'VFlapLift:')
     page.addField( Dv,    'VFlapDrag:')
     #
+    #
+    page = PropertyPage( self.nb.prop )
+    self.pages['prop'] = page
+    page.addField( Mp,    'PropMass :')
+    page.addField( Rp,    'PropRadi :')
+    page.addField( Ap,    'PropMomt :')
+    page.addField( Np,    'PropMinR :')
+    page.addField( Xp,    'PropMaxR :')
+    page.addField( Ip,    'PropFine :')
+    page.addField( Op,    'PropCoar :')
+    page.addField( Vp,    'PropCSpd :')
+    page.addField( Cp,    'PropCRpm :')
+    page.addField( Tp,    'PropTRpm :')
     ## Tix tix for python 3
     if (pythVers < 3):
       self.nb.pack( expand=1, fill=Tix.BOTH, padx=5, pady=5, side=Tix.TOP )

@@ -4,7 +4,7 @@
  unset log                              # remove any log-scaling
  unset label                            # remove any previous labels
  # 
- set term qt size 350, 250
+ set term qt size 340, 256
  # set term qt size 360, 200
  #  set term wxt size 240, 200
  # set term wxt size 380, 150
