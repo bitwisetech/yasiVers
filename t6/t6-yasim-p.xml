@@ -58,11 +58,11 @@
         taper="0.533" 
         dihedral="3"
         sweep="3.5"
-        camber="0.2"
+        camber="0.1"
         idrag="1.0">
         <stall aoa="16.0" width="1.0" peak="1.5"/>
         <flap0 start="0.00" end="0.57" lift="1.5" drag="1.2"/>
-        <flap1 start="0.57" end="1.00" lift="1.80014" drag="1.00112"/>
+        <flap1 start="0.57" end="1.00" lift="1.40180" drag="1.121100"/>
 
         <control-input  control="FLAP0" axis="/controls/flight/flaps"/>
         <control-input  control="FLAP1" axis="/controls/flight/aileron" split="true"/>
@@ -79,7 +79,7 @@
          taper="0.58"
          sweep="10">
          <stall aoa="18.0" width="1.0" peak="1.5"/>
-         <flap0 start="0" end="1" lift="1.60012" drag="1.1"/>
+         <flap0 start="0" end="1" lift="1.1201160" drag="1.1"/>
 
          <control-input  control="FLAP0" axis="/controls/flight/elevator"/>
          <control-input  control="FLAP0" axis="/controls/flight/elevator-trim"/>
@@ -93,7 +93,7 @@
          taper="0.30"
          sweep="10">
          <stall aoa="15.0" width="4.0" peak="1.5"/>
-         <flap0 start="0" end="1" lift="1.70013" drag="1.1"/>
+         <flap0 start="0" end="1" lift="1.130170" drag="1.1"/>
 
          <control-input  control="FLAP0" axis="/controls/flight/rudder"      invert="true"/>
          <control-input  control="FLAP0" axis="/controls/flight/rudder-trim" invert="true"/>
@@ -101,7 +101,7 @@
          <control-output control="FLAP0" prop="/surface-positions/rudder-pos-norm"/>
   </vstab>
   
-  <ballast x="5.00" y="0" z="0" mass="500"/>
+  <ballast x="7.00" y="0" z="0" mass="500"/>
 
   <!-- Engines   source       : http://en.wikipedia.org/wiki/Pratt_%26_Whitney_R-1340
 

@@ -728,6 +728,7 @@ def callPlot():
     ##    
     # run yasim external process to show console output
     command_line = 'yasim ' + vcfgFid + ' -a ' + str(Hy) + ' -s ' + str(Vy)
+    command_line = 'yasim ' + vcfgFid                                        
     args = shlex.split(command_line)
     p = subprocess.Popen(args)
     p.communicate()
