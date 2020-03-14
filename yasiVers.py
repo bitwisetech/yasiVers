@@ -94,6 +94,7 @@ def vblsFromTplt():
   global Ch, Ih, Ah, Wh, Ph, Lh, Dh                            # Hstab     parms
   global Cv, Iv, Av, Wv, Pv, Lv, Dv                            # Vstab     parms 
   global Mp, Rp, Ap, Np, Xp, Ip, Op, Vp, Cp, Tp                # Prop      parms 
+  global Mb, Xb, Yb, Zb                                        # Ballast   parms 
   global Hy, Vy                                                # Solver    parms
 #
   # These flags indicate parsing has detected various sections of yasim config 
@@ -102,6 +103,7 @@ def vblsFromTplt():
   wingFlag   = 0
   hstabFlag  = 0
   vstabFlag  = 0
+  ballFlag   = 0
   propFlag   = 0
 # # Yasim 'Solve At' values for Speed and Altitude 
   Vy = 130
@@ -111,7 +113,8 @@ def vblsFromTplt():
   Cw = Aw = Ww = Pw = Lf = Df = Lr = Dr = 0
   Ch = Ah = Wh = Ph = Lh = Dh = Cv = Iv = Av = Wv = Pv = Lv = Dv = 0
   Iw = Ih = 1.00
-  Sp = Rp = Ap = Rp = Wp = Mp = 0
+  Mp = Rp = Ap = Np = Xp = Ip = Op = Vp = Cp = Tp = 0
+  Mb = Xb = Yb = Zb = 0
 #
   ## # open Yasim config file
   ## ycOpHndl  = open(ycOpFid, 'w', 0)
@@ -145,6 +148,11 @@ def vblsFromTplt():
         vstabFlag = 1
       if '</vstab' in line:
         vstabFlag = 0
+      # flag on ballast section
+      if '<ballast' in line:
+        ballFlag = 1
+      if '</ballast' in line:
+        ballFlag = 0
       # flag on prop section
       if '<propeller' in line:
         propFlag = 1
@@ -317,6 +325,25 @@ def vblsFromTplt():
           #
         #print ('Lv: ', Lv, ' Dv: ', Dv)
       ###
+      #ballast
+      if (ballFlag == 1):
+        ## ballast section single line for all elements
+        if ('mass' in line):
+          Mb =  tuplValu('mass', line)
+        #
+        if ('x=' in line):
+          Xb =  tuplValu('x', line)
+        #
+        if ('y=' in line):
+          Yb =  tuplValu('y', line)
+        #
+        if ('z=' in line):
+          Zb =  tuplValu('z', line)
+        #
+        if ('/>' in line):
+          ballFlag =  0
+        #
+      ###
       #prop 
       if (propFlag == 1):
         ## prop section parse elements if present
@@ -367,6 +394,7 @@ def autoFromVbls():
   global Ch, Ih, Ah, Wh, Ph, Lh, Dh                            # Hstab     parms
   global Cv, Iv, Av, Wv, Pv, Lv, Dv                            # Vstab     parms 
   global Mp, Rp, Ap, Np, Xp, Ip, Op, Vp, Cp, Tp                # Prop      parms 
+  global Mb, Xb, Yb, Zb                                        # Ballast   parms 
   global Hy, Vy                                                # Solver    parms
 #
   apprFlag   = 0
@@ -374,6 +402,7 @@ def autoFromVbls():
   wingFlag   = 0
   hstabFlag  = 0
   vstabFlag  = 0
+  ballFlag   = 0
   propFlag   = 0
   ycOpFid  = ycIpNam + '-tix.xml'
   ###ab smite yDatFid  = ycIpNam + '-tix.txt'
@@ -408,6 +437,10 @@ def autoFromVbls():
         vstabFlag = 1
       if '</vstab'    in line:
         vstabFlag = 0
+      if '<ballast' in line:
+        ballFlag = 1
+      if '</ballast'in line:
+        propFlag = 0
       if '<propeller' in line:
         propFlag = 1
       if '</propeller'in line:
@@ -484,6 +517,24 @@ def autoFromVbls():
           line = tuplSubs( 'drag',    line, Dv ) 
         # 
       ###
+      #ballast
+      if (ballFlag == 1):
+        ## ballast section one line for all elements if present
+        if ('mass' in line):
+          line = tuplSubs( 'mass',    line, Mb ) 
+        #
+        if ('x=' in line):
+          line = tuplSubs( 'x',    line, Xb ) 
+        #
+        if ('y=' in line):
+          line = tuplSubs( 'y',    line, Yb ) 
+        #
+        if ('z=' in line):
+          line = tuplSubs( 'z',    line, Zb ) 
+        #
+        ballFlag =  0
+        #
+      ###
       #prop 
       if (propFlag == 1):
         ## prop section parse elements if present
@@ -543,6 +594,7 @@ def callPlot():
   global Ch, Ih, Ah, Wh, Ph, Lh, Dh                            # Hstab     parms
   global Cv, Iv, Av, Wv, Pv, Lv, Dv                            # Vstab     parms 
   global Mp, Rp, Ap, Np, Xp, Ip, Op, Vp, Cp, Tp                # Prop      parms 
+  global Mb, Xb, Yb, Zb                                        # Ballast   parms 
   global Hy, Vy                                                # Solver    parms
 #
 # Versions in Yasim configuration strings, OrderedDict
@@ -755,6 +807,7 @@ class PropertyField:
     global Ch, Ih, Ah, Wh, Ph, Lh, Dh                            # Hstab     parms
     global Cv, Iv, Av, Wv, Pv, Lv, Dv                            # Vstab     parms 
     global Mp, Rp, Ap, Np, Xp, Ip, Op, Vp, Cp, Tp                # Prop      parms 
+    global Mb, Xb, Yb, Zb                                        # Ballast   parms 
     global Hy, Vy                                                # Solver    parms
     #
     #
@@ -795,6 +848,10 @@ class PropertyField:
     if 'VstbStlPk'  in lbl: Ph = val
     if 'VFlapLift'  in lbl: Lh = val
     if 'VFlapDrag'  in lbl: Dh = val
+    if 'BallMass'   in lbl: Mb = val
+    if 'BallXloc'   in lbl: Xb = val
+    if 'BallYloc'   in lbl: Yb = val
+    if 'BallZloc'   in lbl: Zb = val
     if 'PropMass'   in lbl: Mp = val
     if 'PropRadi'   in lbl: Rp = val
     if 'PropMomt'   in lbl: Ap = val
@@ -876,6 +933,8 @@ class ycTix(tix.Frame):
            raisecmd= lambda self=self: self.update_page() )
     self.nb.add( 'vstb', label='VSTB',
            raisecmd= lambda self=self: self.update_page() )
+    self.nb.add( 'ball', label='BALL',
+           raisecmd= lambda self=self: self.update_page() )
     self.nb.add( 'prop', label='PROP',
            raisecmd= lambda self=self: self.update_page() )
     #
@@ -928,6 +987,12 @@ class ycTix(tix.Frame):
     page.addField( Lv,    'VFlapLift:')
     page.addField( Dv,    'VFlapDrag:')
     #
+    page = PropertyPage( self.nb.ball )
+    self.pages['ball'] = page
+    page.addField( Mb,    'BallMass :')
+    page.addField( Xb,    'BallXloc :')
+    page.addField( Yb,    'BallYloc :')
+    page.addField( Zb,    'BallZloc :')
     #
     page = PropertyPage( self.nb.prop )
     self.pages['prop'] = page
@@ -941,6 +1006,7 @@ class ycTix(tix.Frame):
     page.addField( Vp,    'PropCSpd :')
     page.addField( Cp,    'PropCRpm :')
     page.addField( Tp,    'PropTRpm :')
+    #
     ## Tix tix for python 3
     if (pythVers < 3):
       self.nb.pack( expand=1, fill=Tix.BOTH, padx=5, pady=5, side=Tix.TOP )
