@@ -637,13 +637,13 @@ def callPlot():
             sepsIndx = line.find('version=')
             sepsIndx = line.find('"', (sepsIndx+1))
             sepsIndx = line.find('"', (sepsIndx+1))
-            linePart = linePart + ' version="' + versKywd + ' '
+            linePart = linePart + 'version="' + versKywd
             linePart = linePart + line[sepsIndx:]
             line = linePart
           else :  
             # Use index list to split line into text and numbers
             lineMass = line[0:(sepsList[1]+1)]
-            line = lineMass + ' version="' + versKywd + '">'
+            line = lineMass + 'version="' + versKywd + '">'
         # Write unchanged/modified line into versioned xml 
         vcfgHndl.write(line)
     #close and sync files

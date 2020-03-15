@@ -101,7 +101,7 @@
          <control-output control="FLAP0" prop="/surface-positions/rudder-pos-norm"/>
   </vstab>
   
-  <ballast x="7.00" y="0" z="0" mass="500"/>
+  <ballast x="7.6750" y="0" z="0" mass="500"/>
 
   <!-- Engines   source       : http://en.wikipedia.org/wiki/Pratt_%26_Whitney_R-1340
 
