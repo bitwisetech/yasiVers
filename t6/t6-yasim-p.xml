@@ -4,7 +4,9 @@
                      Updated - 02-2015 Emmanuel BARANGER
                      Updated = 11-2015 Emmanuel BARANGER
                      Updated = 03-2020 Emmanuel BARANGER
-                                                
+                     Updated = 03-2020 Stephen Mattos
+                     Updated = 04-2020 Emmanuel BARANGER
+                     
     sources          : http://en.wikipedia.org/wiki/North_American_T-6_Texan
      
     wingspan         : 12.81 m    (   42 ft      )
@@ -15,9 +17,15 @@
     empty weight     :  1886 kg   ( 4158 lb      )
     Loaded weight    :  2548 kg   ( 5617 lb      )
     engine           : 1 Pratt & Whitney R-1340-AN-1 Wasp radial engine ( 600 hp )
-    ab chord MAC = 69in
+    ab chord MAC @root:90in @tip:48in  using 69in
+    ab fuel tanks (three ??) total 114gal 692lb
+    ab fuel tanks (three ??) total 110.4gal 670lb
+    ab ??oil 10.2gall 61.9lb 
+    ab @yasim tail area 5.543sqM 59.66sqFt POH Tail areaa 50sqFt 
+    ab
 -->
 <airplane mass="4158" version="YASIM_VERSION_CURRENT" mtow-lbs="5617">
+
   <approach speed="80" aoa="2" fuel="0.2">
     <control-setting axis="/controls/engines/engine[0]/throttle"        value="0.3"/>
     <control-setting axis="/controls/engines/engine[0]/mixture"         value="1"/>
@@ -26,9 +34,9 @@
     <control-setting axis="/controls/gear/gear-down" value="1"/>
   </approach>
 
-  <cruise speed="130.0" alt="5000.0" fuel="0.7">
+  <cruise speed="130" alt="5000" fuel="0.7">
     <control-setting axis="/controls/engines/engine[0]/throttle"        value="0.8"/>
-    <control-setting axis="/controls/engines/engine[0]/mixture"         value="0.95"/>
+    <control-setting axis="/controls/engines/engine[0]/mixture"         value="0.9"/>
     <control-setting axis="/controls/engines/engine[0]/propeller-pitch" value="0.6"/>
     <control-setting axis="/controls/flight/flaps"   value="0"/>
     <control-setting axis="/controls/gear/gear-down" value="0"/>
@@ -52,17 +60,31 @@
   <fuselage ax=" 1.888" ay="0" az=" 0.828" bx="-0.103" by="0" bz=" 0.738" width="0.588" taper="1.0" midpoint="1"/>
   <fuselage ax="-0.065" ay="0" az=" 0.764" bx="-0.826" by="0" bz=" 0.575" width="0.588" taper="0.2" midpoint="0"/>
   
-  <wing x="1.691" y="0" z="-0.64681" 
-        chord="1.900"
-        length="6.303" 
-        taper="0.533" 
-        dihedral="3"
+  <wing x="1.616" y="0" z="-0.646" 
+        chord="2.285"
+        length="1.407" 
+        taper="1.0"
+        camber="0.001"
+        incidence="2">
+        <stall aoa="16" width="1" peak="1.5"/>
+        <flap0 start="0" end="1" lift="1.8" drag="2.5"/>
+
+        <control-input  control="FLAP0" axis="/controls/flight/flaps"/>
+
+        <control-output control="FLAP0" prop="/surface-positions/flaps-pos-norm"/>
+  </wing>
+
+  <wing x="1.616" y="1.406" z="-0.646" 
+        append="1"
+        chord="2.285"
+        length="4.938" 
+        taper="0.5"
         sweep="3.5"
-        camber="0.1"
-        idrag="1.0">
-        <stall aoa="16.0" width="1.0" peak="1.5"/>
-        <flap0 start="0.00" end="0.57" lift="1.5" drag="1.2"/>
-        <flap1 start="0.57" end="1.00" lift="1.40180" drag="1.121100"/>
+        dihedral="4.6"
+        incidence="2">
+        <stall aoa="16" width="1" peak="1.5"/>
+        <flap0 start="0.00" end="0.46" lift="1.8" drag="2.5"/>
+        <flap1 start="0.46" end="1.00" lift="1.4" drag="1.2"/>
 
         <control-input  control="FLAP0" axis="/controls/flight/flaps"/>
         <control-input  control="FLAP1" axis="/controls/flight/aileron" split="true"/>
@@ -78,8 +100,8 @@
          length="1.979" 
          taper="0.58"
          sweep="10">
-         <stall aoa="18.0" width="1.0" peak="1.5"/>
-         <flap0 start="0" end="1" lift="1.1201160" drag="1.1"/>
+         <stall aoa="18" width="1" peak="1.5"/>
+         <flap0 start="0" end="1" lift="1.2" drag="1.1"/>
 
          <control-input  control="FLAP0" axis="/controls/flight/elevator"/>
          <control-input  control="FLAP0" axis="/controls/flight/elevator-trim"/>
@@ -92,18 +114,18 @@
          length="1.856" 
          taper="0.30"
          sweep="10">
-         <stall aoa="15.0" width="4.0" peak="1.5"/>
-         <flap0 start="0" end="1" lift="1.130170" drag="1.1"/>
+         <stall aoa="16" width="1" peak="1.5"/>
+         <flap0 start="0" end="1" lift="1.3" drag="1.1"/>
 
          <control-input  control="FLAP0" axis="/controls/flight/rudder"      invert="true"/>
          <control-input  control="FLAP0" axis="/controls/flight/rudder-trim" invert="true"/>
 
          <control-output control="FLAP0" prop="/surface-positions/rudder-pos-norm"/>
   </vstab>
-  
-  <ballast x="7.6750" y="0" z="0" mass="500"/>
 
-  <!-- Engines   source       : http://en.wikipedia.org/wiki/Pratt_%26_Whitney_R-1340
+  <ballast x="7.66" y="0.0" z="-0.75" mass="100.0"/>
+
+  <!-- Engines   source       : http://en.wikipedia.org/wiki/Pratt_%26_Whitney_R-1340 
 
                  name         : Pratt & Whitney R-1340
                  Power        : 542 hp at 2200 rpm at 5,000
@@ -111,14 +133,16 @@
                  weight       : 805 lb (365 kg)
                  Displacement : 1343.8 in3 (22.02 l)
                  Compression  : 6.0:1
+  min-rpm="200"
+  max-rpm="2300">
   -->
-  <propeller x="3.7" y="0" z="-0.09"
+ <propeller x="3.7" y="0" z="-0.09"
              mass="805"
              radius="1.38"
-             moment="12"
+             moment="6.001200"
              min-rpm="1067"
              max-rpm="1534"
-             fine-stop="0.5"
+             fine-stop="0.25"
              coarse-stop="4"
              cruise-speed="130"
              cruise-alt="5000"
@@ -127,21 +151,21 @@
              takeoff-power="600"
              takeoff-rpm="1501"
              gear-ratio="0.667"
-             idrag="1.0">
+             manual-pitch="true">
              <actionpt x="4.08166" y="0" z="-0.09"/>
-             <control-input control="ADVANCE" axis="/controls/engines/engine[0]/propeller-pitch"/>
+             <control-input  control="PROPPITCH" axis="/controls/engines/engine[0]/propeller-pitch" src0="0" src1="1" dst0="-0.15" dst1="0.55"/>
              <piston-engine eng-power="600"
-                     eng-rpm="2300"
-                     displacement="1343.8"
-                     compression="6.03"
-                     supercharger="1"
-                     turbo-mul="1.4"
-                     wastegate-mp="36">
-               <control-input control="BOOST"    axis="/controls/engines/engine[0]/boost"/>
-               <control-input control="THROTTLE" axis="/controls/engines/engine[0]/throttle"/>
-               <control-input control="STARTER"  axis="/controls/engines/engine[0]/starter"/>
-               <control-input control="MAGNETOS" axis="/controls/engines/engine[0]/magnetos"/>
-               <control-input control="MIXTURE"  axis="/controls/engines/engine[0]/mixture"/>
+                            eng-rpm="2250" 
+                            displacement="1343.8" 
+                            compression="6.03"
+							              supercharger="1"
+							              turbo-mul="1.4"
+							              wastegate-mp="36">
+                            <control-input control="THROTTLE" axis="/controls/engines/engine[0]/throttle"/>
+                            <control-input control="STARTER"  axis="/controls/engines/engine[0]/starter"/>
+                            <control-input control="MAGNETOS" axis="/controls/engines/engine[0]/magnetos"/>
+                            <control-input control="MIXTURE"  axis="/controls/engines/engine[0]/mixture"/>
+                            <control-input control="BOOST"    axis="/controls/engines/engine[0]/boost"/>
              </piston-engine>
   </propeller>
 
@@ -174,11 +198,15 @@
   <gear x="-3.39049" y="0" z="-0.64732"
         compression="0.1"
         spring="0.8">
-        <control-input control="STEER" axis="/controls/flight/rudder" src0="-1.0" src1="1.0" dst0=".25" dst1="-.25"/>
+        <control-input control="STEER"     axis="/controls/flight/rudder"       src0="-1" src1="1" dst0="0.25" dst1="-0.25"/>
+        <control-input control="CASTERING" axis="/controls/gear/tailwheel-lock" src0=" 0" src1="1" dst0="1.00" dst1=" 0.00"/>
   </gear>
 
-  <tank x="1.4" y=" 2.7" z="-0.530" capacity="570"/>
-  <tank x="1.0" y=" 0.0" z="-0.355" capacity="884"/>
-  <tank x="1.4" y="-2.7" z="-0.530" capacity="570"/>
+  <!--  93.3 Gal US - 560 lb -->
+  <tank x="1.4" y=" 2.7" z="-0.530" capacity="560"/>
+  <!--  93.3 Gal US - 560 lb -->
+  <tank x="1.0" y=" 0.0" z="-0.355" capacity="560"/>
+  <!--  93.3 Gal US - 560 lb -->
+  <tank x="1.4" y="-2.7" z="-0.530" capacity="560"/>
 
 </airplane>

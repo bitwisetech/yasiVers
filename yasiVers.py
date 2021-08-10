@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 #
 ## yasiVers.py tix menu driven yasim version explorer with gnuplot displays
-#    takes a given yasim config file, runs cmdline yasim with different versions specified
-#    gnuplots are Lift + Drag and Lift + Drag + LvsD for each yasim version 
+#    takes a given yasim config file, tix menus display/alter element values
+#    creates altered yasim configs for different yasim versions
+#    gnuplots Lift, Drag and Lift vs Drag for each yasim version 
 ## Tix tix for python 3  import getopt, os, shlex, subprocess, sys, Tix
 import getopt, os, shlex, subprocess, sys
-
 ##
 #  Python Version
 global pythVers
@@ -731,14 +731,14 @@ def callPlot():
     command_line = 'yasim ' + vcfgFid                                        
     args = shlex.split(command_line)
     p = subprocess.Popen(args)
-    p.communicate()
-    p.wait()
+    #p.communicate()
+    #p.wait()
     #
     # run yasim external process for auto dataset, name used in .p spec
     ###ab smite yDatHndl = open(yDatFid, 'w')
     ###ab smite command_line = 'yasim ' + vcfgFid + ' -g -a ' + str(Hy) + ' -s ' + str(Vy)
     ###ab smite args = shlex.split(command_line)
-    ###ab smite p = subprocess.Popen(args, stdout=yDatHndl)
+    ###ab smite p = subprocess.run(args, stdout=yDatHndl)
     ###ab smite yDatHndl.close
     ###ab smite p.wait()
     #
@@ -747,7 +747,7 @@ def callPlot():
     vDatHndl = open(vdatFid, 'w')
     command_line = 'yasim ' + vcfgFid + ' -g -a '+ str(Hy) + ' -s ' + str(Vy)
     args = shlex.split(command_line)
-    p = subprocess.Popen(args, stdout=vDatHndl)
+    p = subprocess.run(args, stdout=vDatHndl)
     vDatHndl.close
     p.wait()
     ##
@@ -758,7 +758,7 @@ def callPlot():
     #command_line = "gnuplot -p " + vbl2Fid
     #args = shlex.split(command_line)
     #DEVNULL = open(os.devnull, 'wb')
-    #p = subprocess.Popen(args, stdout=DEVNULL, stderr=DEVNULL)
+    #p = subprocess.run(args, stdout=DEVNULL, stderr=DEVNULL)
     #p.communicate()
     #DEVNULL.close()
     #
@@ -768,8 +768,8 @@ def callPlot():
     command_line = "gnuplot -p " + vbl3Fid
     args = shlex.split(command_line)
     DEVNULL = open(os.devnull, 'wb')
-    p = subprocess.Popen(args, stdout=DEVNULL, stderr=DEVNULL)
-    p.communicate()
+    p = subprocess.run(args, stdout=DEVNULL, stderr=DEVNULL)
+    #p.communicate()
     DEVNULL.close()
   #end step through version dictionary
 #
